@@ -18,6 +18,9 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
   if (!visible) return json({ ok: false, message: "Unknown order." }, 404);
   const runtime = getRuntime();
   if (!runtime.ok) return json({ ok: false, message: runtime.reason }, 503);
+  if (runtime.acknowledgments === "manual") {
+    return json({ ok: false, message: "Automatic email is switched off. Send the acknowledgment by hand and mark it as sent." }, 409);
+  }
   try {
     const status = await sendAcknowledgment(visible, runtime);
     if (status === "sending") {

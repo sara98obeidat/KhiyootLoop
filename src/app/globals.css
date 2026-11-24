@@ -186,3 +186,20 @@ input[aria-invalid="true"] { border-color: var(--danger); }
 .inline-form select { width: auto; min-width: 200px; }
 .info-section { margin-bottom: 28px; }
 .info-section h2 { border-left: 4px solid var(--gold); padding-left: 10px; }
+
+/* Printing / saving as PDF */
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .no-print, .site-header .nav, .site-footer, .skip-link, .dev-banner { display: none !important; }
+  .test-banner { border: 2px solid #000; background: #fff; color: #000; }
+  .card, .notice { border: 1px solid #999; background: #fff; break-inside: avoid; }
+  .configurator { display: block; }
+  .preview-panel { position: static; max-width: 120mm; margin: 0 auto 8mm; }
+  a { color: #000; text-decoration: none; }
+  .badge { border: 1px solid #000; background: #fff; color: #000; }
+}
+.print-only { display: none; }
+@media print { .print-only { display: block; } }
+.status-email-manual_pending { background: #fff6e0; border-color: #e8c97a; }
+.status-email-manual_sent { background: var(--ok-soft); border-color: #a9d3b5; color: var(--ok); }

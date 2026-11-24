@@ -250,7 +250,7 @@ export function ReviewForm({ mode }: { mode: OrderMode }) {
             <label className="field" htmlFor="email">Email address</label>
             <input id="email" type="email" autoComplete="email" inputMode="email" value={email} maxLength={254}
               onChange={(e) => setEmail(e.target.value)} aria-invalid={!!errors.email} aria-describedby="email-hint email-err" required />
-            <p id="email-hint" className="hint">We send your order reference and specification here.</p>
+            <p id="email-hint" className="hint">Used only to contact you about this order request.</p>
             <p id="email-err" className="field-error">{errors.email ?? ""}</p>
           </div>
           {!test && (

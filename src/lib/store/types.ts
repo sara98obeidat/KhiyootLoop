@@ -1,5 +1,8 @@
 import type { EmailStatus, NewOrder, OrderRecord, OrderStatus } from "../orders";
 
+/** Email statuses from which the founder may mark an order as acknowledged by hand. */
+export const MANUAL_ACK_FROM: EmailStatus[] = ["manual_pending", "pending", "failed", "not_configured", "bounced"];
+
 export type InsertResult =
   | { kind: "created"; order: OrderRecord }
   | { kind: "duplicate"; order: OrderRecord }
@@ -32,4 +35,6 @@ export interface OrderStore {
     result: { status: EmailStatus; providerId?: string | null; error?: string | null },
   ): Promise<void>;
   updateEmailStatusByProviderId(providerId: string, status: EmailStatus): Promise<void>;
+  /** Founder has sent the acknowledgment by hand. Returns the updated order, or null if not allowed. */
+  markManuallyAcknowledged(id: string): Promise<OrderRecord | null>;
 }

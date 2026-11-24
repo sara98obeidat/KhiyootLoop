@@ -13,15 +13,16 @@ Last updated: 24 November 2026.
 - Orders: unique reference, timestamp, test/live flag, contact, all options, price snapshot, catalog/pricing/preview versions, order status and email status.
 - Duplicate protection: the button disables, network retries reuse the same idempotency key, and a unique database constraint backs this up (tested with 10 simultaneous requests).
 - Abuse protection: same-origin check, a hidden honeypot field, request size limit, strict schema, and rate limits per client (30 per 10 minutes, so a whole class can share one network) and overall (500 per hour).
-- Email: sent only after the order is saved. "Accepted" is never shown as "delivered". Failures are recorded and shown to the customer accurately. The founder can retry without creating an order, and a lock prevents parallel sends. An optional signed Resend webhook sets delivered or bounced.
+- Acknowledgments: **manual by default** (`EMAIL_ACKNOWLEDGMENTS=manual`). No email service is needed, and the site never says an email was sent. The confirmation page shows the reference and the complete order summary with **Print or save as PDF**. The dashboard offers a prepared email draft, a copy-text button and **Mark acknowledgment sent** (tracked per order).
+- Automatic email (switched off, ready for later): sent only after the order is saved. "Accepted" is never shown as "delivered". Failures are recorded and shown to the customer accurately. The founder can retry without creating an order, and a lock prevents parallel sends. An optional signed Resend webhook sets delivered or bounced.
 - Founder: Supabase email/password sign-in, plus a check that the account is the one row in `founders` (the database allows only one). Pages and API routes check this on the server, and row-level security enforces it again in the database. The founder can change only the status column.
 - Security headers (Content Security Policy, no framing, no-store on private pages). No secrets reach the browser.
 
 ## Tested here (automated)
 
-- 63 unit tests (`npm test`): validation, pricing, both journeys, duplicates, retries, manipulated prices, rate limits, email success, failure and retry, escaping, preview determinism.
+- 67 unit tests (`npm test`): validation, pricing, both journeys, duplicates, retries, manipulated prices, rate limits, email success, failure and retry, escaping, preview determinism.
 - 25 database checks (`npm run test:db`): the real migration applied to PostgreSQL 16 with Supabase-style roles. Anonymous visitors and other signed-in users cannot read or change orders, and the founder cannot change prices, tag text or email status, or add a second founder.
-- 57 browser checks (`npm run test:e2e`, Chromium, iPhone 13 / Pixel 7 / desktop): both journeys, Arabic text, keyboard-only use, double-click, refresh and another device, anonymous access, manipulated price, founder dashboard, email failure and retry, and no sideways scrolling on phones.
+- 71 browser checks (`npm run test:e2e`, Chromium, iPhone 13 / Pixel 7 / desktop): both journeys, Arabic text, keyboard-only use, confirmation summary and print view, manual acknowledgment, double-click, refresh and another device, anonymous access, manipulated price, founder dashboard, email failure and retry, and no sideways scrolling on phones.
 
 ## Simulated (only in automated tests and local development)
 
@@ -31,9 +32,9 @@ Last updated: 24 November 2026.
 ## Blocked: needs the founder (see docs/SETUP.md)
 
 - **Supabase project**, founder user and founder row: needs the founder's account.
-- **Resend** API key and a **verified sending domain**. Without a domain, emails can only go to the founder's own address.
-- **Vercel deployment** and `SITE_URL`.
-- **Deployed acceptance test** (`docs/ACCEPTANCE.md`): the MVP is **not complete** until the deployed order journey, database persistence and real email delivery have been checked there.
+- Automatic emails are **not needed** for the classroom test. They need a Resend account and a domain the founder owns, and can be switched on later without code changes.
+- **Vercel deployment**. The free `…vercel.app` address is used automatically.
+- **Deployed acceptance test** (`docs/ACCEPTANCE.md`): the MVP is **not complete** until the deployed order journey, database persistence and the manual acknowledgment process have been checked there.
 
 ## Not built (out of MVP scope, or waiting for decisions)
 

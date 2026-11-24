@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FounderGate } from "@/components/founder/FounderGate";
 import { OrderCard } from "@/components/founder/OrderCard";
 import { getFounderSession } from "@/lib/founder";
+import { ackDraftFor } from "@/lib/founderAck";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Order details", robots: { index: false, follow: false } };
@@ -15,7 +16,7 @@ export default async function FounderOrderPage({ params }: { params: Promise<{ i
   return (
     <div className="stack">
       <Link href="/founder">← All orders</Link>
-      {order ? <OrderCard order={order} detailed /> : <p className="notice notice-warn">Order not found.</p>}
+      {order ? <OrderCard order={order} ack={ackDraftFor(order)} detailed /> : <p className="notice notice-warn">Order not found.</p>}
     </div>
   );
 }

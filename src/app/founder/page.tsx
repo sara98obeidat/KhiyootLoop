@@ -3,6 +3,7 @@ import { FounderGate } from "@/components/founder/FounderGate";
 import { LogoutButton } from "@/components/founder/FounderActions";
 import { OrderCard } from "@/components/founder/OrderCard";
 import { getFounderSession } from "@/lib/founder";
+import { ackDraftFor } from "@/lib/founderAck";
 import {
   EMAIL_STATUSES,
   EMAIL_STATUS_LABELS,
@@ -94,7 +95,7 @@ export default async function FounderDashboard({ searchParams }: { searchParams:
       {loadError && <p className="notice notice-error">{loadError}</p>}
       <p className="small muted" style={{ marginTop: 12 }} aria-live="polite">{orders.length} order{orders.length === 1 ? "" : "s"} shown</p>
       <div className="order-list">
-        {orders.map((o) => <OrderCard key={o.id} order={o} />)}
+        {orders.map((o) => <OrderCard key={o.id} order={o} ack={ackDraftFor(o)} />)}
       </div>
     </div>
   );

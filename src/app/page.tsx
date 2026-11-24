@@ -78,7 +78,7 @@ export default function HomePage() {
           <li>Choose a leather or metal tag and type up to 12 characters.</li>
           <li>Check the preview, dimensions, full specification and price.</li>
           <li>Enter your contact details, review once more, and submit.</li>
-          <li>You get an order reference on screen and by email. This confirms we received your request.</li>
+          <li>You get an order reference and a full order summary on screen, which you can print or save. This confirms we received your request.</li>
           <li>We then check materials, tag engraving, capacity and payment, and confirm production separately.</li>
         </ol>
         <p className="small muted" style={{ marginTop: 12 }}>{PRODUCTION_ESTIMATE_TEXT}</p>

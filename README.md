@@ -19,7 +19,8 @@ delivery (see `docs/SETUP.md` → "Switching on real orders").
 
 - Next.js 16 (App Router) + TypeScript, deployable on Vercel
 - Supabase Postgres for orders, Supabase Auth for the single founder account, row-level security
-- Resend for acknowledgment emails (optional webhook for delivered/bounced status)
+- Acknowledgments are **manual** for the classroom test (no email service needed). Automatic emails through Resend are built in and switched on later with `EMAIL_ACKNOWLEDGMENTS=automatic`, without code changes
+- Runs on the free Vercel address (`…vercel.app`); no domain needed
 - No client-side secrets: there are no `NEXT_PUBLIC_` variables
 
 ## Pages
@@ -57,11 +58,15 @@ delivery (see `docs/SETUP.md` → "Switching on real orders").
    with a unique reference (`KL-TEST-XXXX-XXXX`). A unique database constraint on
    the idempotency key means double clicks and network retries return the same
    order instead of creating another one.
-4. Only **after** the order is saved is the acknowledgment email sent. Its result is
+4. The customer sees the order reference and the full summary, with a print/save
+   button. In **manual** mode (the classroom default), no email is sent and the order
+   is marked "To acknowledge manually". The founder sends the prepared text from the
+   dashboard and clicks "Mark acknowledgment sent".
+   In **automatic** mode, only **after** the order is saved is the acknowledgment email sent. Its result is
    stored as `accepted` (accepted by Resend, not proof of delivery), `failed` or
    `not_configured`. A failed email never removes the order. The founder can retry
    from the dashboard, and that never creates a new order.
-5. The customer sees the acknowledgment page, which reads the order back from the database.
+5. The acknowledgment page always reads the order back from the database.
 
 ## Commands
 

@@ -37,6 +37,8 @@ export const EMAIL_STATUSES = [
   "complained",
   "failed",
   "not_configured",
+  "manual_pending",
+  "manual_sent",
 ] as const;
 export type EmailStatus = (typeof EMAIL_STATUSES)[number];
 
@@ -50,6 +52,8 @@ export const EMAIL_STATUS_LABELS: Record<EmailStatus, string> = {
   complained: "Marked as spam by recipient",
   failed: "Failed to send",
   not_configured: "Not sent — email service not configured",
+  manual_pending: "To acknowledge manually",
+  manual_sent: "Acknowledged manually",
 };
 
 export interface CustomerContact {

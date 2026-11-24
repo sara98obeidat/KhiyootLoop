@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { EmailStatus, NewOrder, OrderRecord } from "../orders";
-import type { InsertResult, OrderStore } from "./types";
+import { MANUAL_ACK_FROM, type InsertResult, type OrderStore } from "./types";
 import { ORDER_COLUMNS, newOrderToRow, rowToOrder, type OrderRow } from "./rowMapping";
 
 /**
@@ -89,6 +89,18 @@ export class SupabaseOrderStore implements OrderStore {
       })
       .eq("id", id);
     if (error) throw new Error(`Could not record email result: ${error.message}`);
+  }
+
+  async markManuallyAcknowledged(id: string): Promise<OrderRecord | null> {
+    const { data, error } = await this.db
+      .from("orders")
+      .update({ email_status: "manual_sent", email_last_attempt_at: new Date().toISOString(), email_error: null })
+      .eq("id", id)
+      .in("email_status", MANUAL_ACK_FROM)
+      .select(ORDER_COLUMNS)
+      .maybeSingle();
+    if (error) throw new Error(`Could not mark acknowledgment: ${error.message}`);
+    return data ? rowToOrder(data as unknown as OrderRow) : null;
   }
 
   async updateEmailStatusByProviderId(providerId: string, status: EmailStatus): Promise<void> {

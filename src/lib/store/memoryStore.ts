@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { EmailStatus, NewOrder, OrderRecord, OrderStatus } from "../orders";
-import type { InsertResult, OrderFilter, OrderStore } from "./types";
+import { MANUAL_ACK_FROM, type InsertResult, type OrderFilter, type OrderStore } from "./types";
 
 /**
  * In-memory order store for AUTOMATED TESTS and local development only.
@@ -97,6 +97,15 @@ export class MemoryOrderStore implements OrderStore {
     o.emailProviderId = r.providerId ?? null;
     o.emailError = r.error ?? null;
     o.updatedAt = new Date().toISOString();
+  }
+
+  async markManuallyAcknowledged(id: string) {
+    const o = this.orders.find((x) => x.id === id);
+    if (!o || !MANUAL_ACK_FROM.includes(o.emailStatus)) return null;
+    o.emailStatus = "manual_sent";
+    o.emailLastAttemptAt = new Date().toISOString();
+    o.emailError = null;
+    return strip(o);
   }
 
   async updateEmailStatusByProviderId(providerId: string, status: EmailStatus) {

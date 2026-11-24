@@ -1,8 +1,11 @@
 # Putting KhiyootLoop online: step-by-step setup
 
-This guide is written for a non-technical founder. It takes about an hour the
-first time. You will create three free accounts (Supabase, Resend and Vercel)
-and copy some values from one website to another.
+This guide is written for a non-technical founder. It takes about 45 minutes
+the first time. You will create two free accounts (Supabase and Vercel) and
+copy some values from one website to another. **No domain and no email service
+are needed for the classroom test**: the site uses the free address Vercel
+gives it (like `https://khiyootloop.vercel.app`), and you send acknowledgments
+yourself.
 
 > **Keep keys secret.** Some values below are secret keys. Paste them **only**
 > into the Vercel "Environment Variables" screen. Never paste them into a
@@ -13,8 +16,6 @@ You will need:
 
 - The GitHub repository with this code (`sara98obeidat/KhiyootLoop`).
 - An email address and password that you will use to sign in as the founder.
-- Ideally, a web domain you own (for example `khiyootloop.com`). It is needed
-  to send emails to anyone other than yourself. See step C2.
 
 Keep a note (on paper or in a password manager) as you go of: your Supabase
 project URL, your founder email, and your website address.
@@ -34,6 +35,8 @@ project URL, your founder email, and your website address.
    - In GitHub, open the file `supabase/migrations/20261124000001_initial_schema.sql`,
      click the **Copy raw file** button, and paste everything into the Supabase query box.
    - Click **Run**. You should see "Success. No rows returned".
+   - Click **New query** again and do the same with the second file,
+     `supabase/migrations/20261125000001_manual_acknowledgments.sql`.
 4. **Stop strangers from creating accounts.**
    - Left menu → **Authentication** → **Sign In / Providers** (on some
      dashboards: **Providers** or **Settings**).
@@ -80,28 +83,7 @@ the private link each customer gets to their order page.
 
 ---
 
-## C. Resend: the confirmation emails
-
-1. Go to <https://resend.com> and sign up.
-2. **Verify a sending domain** (needed to email classroom participants).
-   - Left menu → **Domains** → **Add domain**, type your domain (for example `khiyootloop.com`).
-   - Resend shows a few DNS records. Sign in where you bought the domain
-     (for example Namecheap or GoDaddy), open its DNS settings, and add each
-     record exactly as shown. Resend has a guide for each provider.
-   - Back in Resend, click **Verify**. It can take from a few minutes to a few hours.
-   - **No domain yet?** You can still test: use `KhiyootLoop <onboarding@resend.dev>`
-     as `EMAIL_FROM`. Resend then only sends to the email address of your own
-     Resend account, so this is only for your own test, not for the class.
-3. **Create an API key.**
-   - Left menu → **API Keys** → **Create API key**, name it `khiyootloop`,
-     permission **Sending access**. Copy the key (it starts with `re_`).
-     It is shown only once: paste it straight into Vercel in step D.
-4. Decide your sender line, for example `KhiyootLoop <orders@khiyootloop.com>`.
-   The part after `@` must be your verified domain. This goes into `EMAIL_FROM`.
-
----
-
-## D. Vercel: putting the website online
+## C. Vercel: putting the website online
 
 1. Go to <https://vercel.com> and sign up **with GitHub**.
 2. Click **Add New…** → **Project**, find **KhiyootLoop** and click **Import**.
@@ -115,23 +97,77 @@ the private link each customer gets to their order page.
    | `SUPABASE_ANON_KEY` | Supabase anon / publishable key |
    | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service_role / secret key |
    | `APP_SECRET` | the random text from step B |
-   | `RESEND_API_KEY` | the Resend key from step C3 |
-   | `EMAIL_FROM` | your sender line from step C4 |
-   | `EMAIL_REPLY_TO` | (optional) your own email, so customer replies reach you |
+   | `EMAIL_ACKNOWLEDGMENTS` | `manual` |
    | `ENABLE_LIVE_ORDERS` | `false` |
 
-4. Click **Deploy** and wait for "Congratulations".
-5. Copy your site's address (for example `https://khiyootloop.vercel.app`).
-   - Go to **Settings** → **Environment Variables**, add `SITE_URL` with that
-     address (no `/` at the end).
-   - Go to **Deployments**, click the **⋯** next to the newest one → **Redeploy**.
-     (Changes to variables only take effect after a redeploy.)
-6. **Check the setup:** open `https://YOUR-SITE/api/health`. You should see:
-   `"database":"configured"`, `"email":"configured"`, `"orderMode":"test"`.
-   If something says `not_configured`, re-check that variable's name and value,
-   then redeploy.
+   You do **not** need `SITE_URL` or any Resend values for the classroom test.
 
-### Optional: real "delivered" and "bounced" email status
+4. Click **Deploy** and wait for "Congratulations".
+5. Your site's address is shown on the project page under **Domains**
+   (for example `https://khiyootloop.vercel.app`). The site picks this address up
+   automatically. If you later change environment variables, go to
+   **Deployments**, click **⋯** next to the newest one → **Redeploy**.
+6. **Check the setup:** open `https://YOUR-SITE/api/health`. You should see
+   `"database":"configured"`, `"orderMode":"test"` and `"acknowledgments":"manual"`.
+   If the database says `not_configured`, re-check those variable names and values, then redeploy.
+
+---
+
+## D. Running the classroom test
+
+- Customer site: `https://YOUR-SITE`
+- Founder dashboard: `https://YOUR-SITE/founder` (sign in with the founder account from step A5).
+
+After each submission the participant sees their **order reference and the
+complete order summary**, with a **Print or save as PDF** button. No automatic
+email is sent, and the site never says one was.
+
+To acknowledge an order by hand, open the dashboard and, on that order:
+
+1. Click **Open email draft**. Your email app opens with the participant's address,
+   a subject starting with `[TEST ORDER]` and the full acknowledgment text, including
+   a private link back to their order summary. (Or click **Copy acknowledgment text**
+   and paste it into any email.)
+2. Send it from your own email account.
+3. Click **Mark acknowledgment sent**. The dashboard then shows "Acknowledged manually".
+
+Then work through `docs/ACCEPTANCE.md` before the session.
+
+---
+
+## E. Later (optional): automatic acknowledgment emails
+
+The email code is already in the site and switched off. To switch it on later
+you need a domain you own (Resend only sends to other people from a verified domain).
+No code changes are needed, only settings and a redeploy:
+
+1. Go to <https://resend.com> and sign up.
+2. **Verify a sending domain.**
+   - Left menu → **Domains** → **Add domain**, type your domain (for example `khiyootloop.com`).
+   - Resend shows a few DNS records. Sign in where you bought the domain
+     (for example Namecheap or GoDaddy), open its DNS settings, and add each
+     record exactly as shown. Resend has a guide for each provider.
+   - Back in Resend, click **Verify**. It can take from a few minutes to a few hours.
+   - **No domain yet?** You can still test: use `KhiyootLoop <onboarding@resend.dev>`
+     as `EMAIL_FROM`. Resend then only sends to the email address of your own
+     Resend account, so this is only for your own test, not for the class.
+3. **Create an API key.**
+   - Left menu → **API Keys** → **Create API key**, name it `khiyootloop`,
+     permission **Sending access**. Copy the key (it starts with `re_`).
+     It is shown only once: paste it straight into Vercel.
+4. Decide your sender line, for example `KhiyootLoop <orders@khiyootloop.com>`.
+   The part after `@` must be your verified domain. This goes into `EMAIL_FROM`.
+5. In Vercel → **Settings** → **Environment Variables**, add `RESEND_API_KEY`,
+   `EMAIL_FROM` (and optionally `EMAIL_REPLY_TO` with your own address), and change
+   `EMAIL_ACKNOWLEDGMENTS` to `automatic`. If you use your own domain for the website
+   too, also set `SITE_URL` to it. Then **Redeploy**.
+6. `/api/health` should now show `"acknowledgments":"automatic"` and `"email":"configured"`.
+   New orders are then emailed automatically; the dashboard shows the email status and a
+   **Retry email** button if sending fails.
+
+---
+
+### Optional extra: real "delivered" and "bounced" email status
 
 Without this, the dashboard shows "Accepted by email service (delivery not
 confirmed)". With it, it can show "Delivered" or "Bounced".
@@ -141,15 +177,6 @@ confirmed)". With it, it can show "Delivered" or "Bounced".
 3. Events: `email.delivered`, `email.bounced`, `email.delivery_delayed`,
    `email.complained`, `email.failed`. Save.
 4. Copy the **Signing secret** into a new Vercel variable `RESEND_WEBHOOK_SECRET`, then redeploy.
-
----
-
-## E. Use it
-
-- Customer site: `https://YOUR-SITE`
-- Founder dashboard: `https://YOUR-SITE/founder` (sign in with the founder account from step A5).
-
-Then work through `docs/ACCEPTANCE.md` before the classroom session.
 
 ---
 

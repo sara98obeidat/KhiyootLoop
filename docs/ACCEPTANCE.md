@@ -7,7 +7,7 @@ Write the date, device and result next to each line.
 Use two devices if possible: a phone (customer) and a laptop (founder).
 
 ## 0. Setup check
-- [ ] ★ `https://YOUR-SITE/api/health` shows `database: configured`, `email: configured`, `orderMode: test`.
+- [ ] ★ `https://YOUR-SITE/api/health` shows `database: configured`, `orderMode: test`, `acknowledgments: manual`.
 - [ ] The pink "Classroom test — no payment or production commitment" bar is on every page.
 
 ## 1. Bag journey (phone)
@@ -24,28 +24,31 @@ Use two devices if possible: a phone (customer) and a laptop (founder).
 - [ ] Review page lists every option and the exact tag text.
 - [ ] Press **Submit test order** with empty name/email: clear messages appear; nothing is submitted.
 - [ ] There is no phone or address field.
-- [ ] ★ Fill in alias + your real email, tick the tag confirmation, tap **Submit test order** twice quickly. One acknowledgment page appears with a reference like `KL-TEST-XXXX-XXXX`.
+- [ ] ★ Fill in alias + your real email, tick the tag confirmation, tap **Submit test order** twice quickly. One confirmation page appears with a reference like `KL-TEST-XXXX-XXXX`.
+- [ ] ★ The confirmation page shows the complete order summary (all options, exact tag text, price, name, email, time) and says "Classroom test order — no payment or production commitment".
+- [ ] It does **not** say an email was sent.
+- [ ] **Print or save as PDF** opens the print window; "Save as PDF" produces a clean one-page-ish summary without the menu.
 
 ## 2. Scarf journey with Arabic text (laptop, keyboard only)
 - [ ] Using only Tab, Shift+Tab, arrow keys, Space and Enter, configure a scarf: Small, back-loop HDC, acrylic–wool–alpaca (shows "Contains wool"), navy, metal tag.
 - [ ] Focus is always visible (purple ring).
 - [ ] Tag text `خيوط لوب`: the preview shows it right-to-left and correctly joined.
 - [ ] Price shows **56 JOD** (test price).
-- [ ] ★ Submit with a second real email address. Acknowledgment page appears.
+- [ ] ★ Submit with a second email address. The confirmation page appears with the summary.
 
 ## 3. Persistence ★
-- [ ] ★ Refresh the acknowledgment page: the same order is still shown.
-- [ ] ★ Open the acknowledgment link (from the email) on a different device: the same order appears.
-- [ ] ★ Sign in at `/founder` on the laptop: both orders are listed with reference, details, drawing, exact tag text, price, TEST flag, status and email status.
+- [ ] ★ Refresh the confirmation page: the same order is still shown.
+- [ ] ★ Copy the confirmation page's address and open it on a different device: the same order appears.
+- [ ] ★ Sign in at `/founder` on the laptop: both orders are listed with reference, details, drawing, exact tag text, price, TEST flag, status and acknowledgment status.
 - [ ] ★ Each listed drawing matches what was reviewed on the customer device.
 - [ ] Only one order exists for the double-tapped submission.
 
-## 4. Email ★
-- [ ] ★ Both confirmation emails arrive (check spam). Subject starts with `[TEST ORDER]`. They show the reference, specification, exact tag text, price (test price), the 3–7 working day estimate, and say production is not yet confirmed.
-- [ ] ★ The Arabic tag text in the email is correct.
-- [ ] Dashboard email status says "Accepted by email service (delivery not confirmed)", or "Delivered" if the optional webhook is set up.
-- [ ] **Failure test:** in Vercel, temporarily change `RESEND_API_KEY` to `re_invalid`, redeploy, submit a test order. The acknowledgment page says the order is saved but the email could not be sent. The dashboard shows "Failed to send".
-- [ ] Restore the correct key, redeploy, press **Retry email** on that order: the status changes to accepted, the email arrives, and **no new order** appears.
+## 4. Manual acknowledgment ★
+- [ ] ★ In the dashboard each new order shows "Acknowledgment: To acknowledge manually".
+- [ ] ★ **Open email draft** opens your email app with the participant's address, a `[TEST ORDER]` subject and the full summary (including the Arabic tag text and a private link to the order page).
+- [ ] ★ Send it from your own email account; the participant receives it.
+- [ ] ★ Click **Mark acknowledgment sent**: the order shows "Acknowledged manually" after refresh, and no new order appears.
+- [ ] **Copy acknowledgment text** copies the same text.
 
 ## 5. Founder dashboard
 - [ ] Change an order's status to "Awaiting confirmation/payment": it is saved after refresh.

@@ -1,6 +1,7 @@
 import "server-only";
 import { currentOrderMode, type OrderMode } from "@/config/site";
 import {
+  acknowledgmentMode,
   devFakeEmailMode,
   devMemoryBackendEnabled,
   emailConfigured,
@@ -25,6 +26,7 @@ export type Runtime =
       store: OrderStore;
       email: EmailSender;
       mode: OrderMode;
+      acknowledgments: "automatic" | "manual";
       secret: string;
       siteUrl?: string;
     }
@@ -64,6 +66,7 @@ export function getRuntime(): Runtime {
       store: new SupabaseOrderStore(supabaseAdmin()),
       email: emailSender(),
       mode,
+      acknowledgments: acknowledgmentMode(),
       secret: env.appSecret,
       siteUrl,
     };
@@ -75,6 +78,7 @@ export function getRuntime(): Runtime {
       store: devMemoryStore(),
       email: emailSender(),
       mode,
+      acknowledgments: acknowledgmentMode(),
       secret: "development-only-secret-not-for-production-use",
       siteUrl: siteUrl ?? "http://localhost:3000",
     };
