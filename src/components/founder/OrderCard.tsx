@@ -4,16 +4,22 @@ import { describeConfiguration } from "@/lib/configuration";
 import { EMAIL_STATUS_LABELS, ORDER_STATUS_LABELS, type OrderRecord } from "@/lib/orders";
 import { formatJod } from "@/lib/pricing";
 import { textDirection } from "@/lib/tagText";
-import { ResendEmailButton, StatusControl } from "./FounderActions";
+import { ManualAckControls, ResendEmailButton, StatusControl } from "./FounderActions";
 
 export function formatAmman(iso: string | null) {
   if (!iso) return "—";
   return new Date(iso).toLocaleString("en-GB", { timeZone: "Asia/Amman", dateStyle: "medium", timeStyle: "short" });
 }
 
-export function OrderCard({ order, detailed = false }: { order: OrderRecord; detailed?: boolean }) {
+export interface AckDraft {
+  mode: "automatic" | "manual";
+  subject: string;
+  text: string;
+}
+
+export function OrderCard({ order, ack, detailed = false }: { order: OrderRecord; ack: AckDraft; detailed?: boolean }) {
   const d = describeConfiguration(order.configuration);
-  const emailProblem = !["accepted", "delivered", "sending", "delayed"].includes(order.emailStatus);
+  const emailProblem = !["accepted", "delivered", "sending", "delayed", "manual_sent"].includes(order.emailStatus);
   return (
     <article className="card order-item" aria-labelledby={`ref-${order.id}`}>
       <div className="thumb">
@@ -26,7 +32,9 @@ export function OrderCard({ order, detailed = false }: { order: OrderRecord; det
           </h2>
           {order.isTest ? <span className="badge">TEST</span> : <span className="badge badge-live">LIVE</span>}
           <span className="status-pill">{ORDER_STATUS_LABELS[order.status]}</span>
-          <span className={`status-pill status-email-${order.emailStatus}`}>Email: {EMAIL_STATUS_LABELS[order.emailStatus]}</span>
+          <span className={`status-pill status-email-${order.emailStatus}`}>
+            {ack.mode === "manual" ? "Acknowledgment" : "Email"}: {EMAIL_STATUS_LABELS[order.emailStatus]}
+          </span>
         </div>
         <dl className="kv">
           <dt>Received</dt><dd>{formatAmman(order.createdAt)} (Amman)</dd>
@@ -53,7 +61,11 @@ export function OrderCard({ order, detailed = false }: { order: OrderRecord; det
           )}
         </dl>
         <StatusControl orderId={order.id} status={order.status} reference={order.reference} />
-        {(emailProblem || detailed) && <ResendEmailButton orderId={order.id} emailStatus={order.emailStatus} />}
+        {ack.mode === "manual" ? (
+          <ManualAckControls orderId={order.id} emailStatus={order.emailStatus} to={order.customer.email} subject={ack.subject} text={ack.text} />
+        ) : (
+          (emailProblem || detailed) && <ResendEmailButton orderId={order.id} emailStatus={order.emailStatus} />
+        )}
       </div>
     </article>
   );

@@ -12,7 +12,11 @@ export const env = {
   emailFrom: process.env.EMAIL_FROM?.trim() || "",
   emailReplyTo: process.env.EMAIL_REPLY_TO?.trim() || "",
   resendWebhookSecret: process.env.RESEND_WEBHOOK_SECRET?.trim() || "",
-  siteUrl: (process.env.SITE_URL?.trim() || "").replace(/\/+$/, ""),
+  // Optional. Defaults to the address Vercel gives the project (…vercel.app).
+  siteUrl: (
+    process.env.SITE_URL?.trim() ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "")
+  ).replace(/\/+$/, ""),
   /** Long random string used to sign order links and anonymise IP addresses. */
   appSecret: process.env.APP_SECRET?.trim() || "",
 };
@@ -23,6 +27,16 @@ export function supabaseConfigured(): boolean {
 
 export function supabaseAuthConfigured(): boolean {
   return Boolean(env.supabaseUrl && env.supabaseAnonKey);
+}
+
+/**
+ * Automatic acknowledgment emails are OFF unless EMAIL_ACKNOWLEDGMENTS is set
+ * to "automatic". With them off, the founder acknowledges orders by hand and
+ * the site never says that an email was sent.
+ */
+export function acknowledgmentMode(): "automatic" | "manual" {
+  if (devFakeEmailMode()) return "automatic";
+  return process.env.EMAIL_ACKNOWLEDGMENTS?.trim().toLowerCase() === "automatic" ? "automatic" : "manual";
 }
 
 export function emailConfigured(): boolean {

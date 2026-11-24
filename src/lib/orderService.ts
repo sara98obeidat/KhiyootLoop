@@ -60,7 +60,14 @@ export interface SubmitDeps {
   secret: string;
   clientId: string;
   siteUrl?: string;
+  /**
+   * "manual": no automatic email; the founder acknowledges orders by hand
+   * (classroom default). "automatic": send through the configured email service.
+   */
+  acknowledgments: AcknowledgmentMode;
 }
+
+export type AcknowledgmentMode = "automatic" | "manual";
 
 export interface OrderSummary {
   reference: string;
@@ -234,6 +241,17 @@ export async function submitOrder(raw: unknown, deps: SubmitDeps): Promise<Submi
 
   // The order is saved. From here on, nothing may make the request look failed.
   let emailStatus: EmailStatus;
+  if (deps.acknowledgments === "manual") {
+    emailStatus = "manual_pending";
+    await deps.store.recordEmailResult(saved.id, { status: "manual_pending" }).catch((e) => {
+      console.error("[orders] could not mark manual acknowledgment:", e instanceof Error ? e.message : e);
+      emailStatus = "pending";
+    });
+    return {
+      status: 201,
+      body: { ok: true, duplicate: false, order: { ...summary(saved, deps.secret), emailStatus } },
+    };
+  }
   try {
     emailStatus = await sendAcknowledgment(saved, deps);
   } catch (e) {

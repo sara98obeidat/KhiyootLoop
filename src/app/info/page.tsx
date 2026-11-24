@@ -67,7 +67,7 @@ export default function InfoPage() {
         <h2 id="ordering">Ordering</h2>
         <ol>
           <li>Design your item and review the full specification and price.</li>
-          <li>Submit your order request. You receive an order reference on screen and by email. This confirms we <strong>received</strong> your request, not that production has started.</li>
+          <li>Submit your order request. You receive an order reference and a full order summary on screen, which you can print or save as a PDF. This confirms we <strong>received</strong> your request, not that production has started.</li>
           <li>We check materials, tag engraving, capacity and payment arrangements, and then confirm production with you separately.</li>
         </ol>
         <p>There is no online payment on this website. Delivery is additional to the item price.</p>

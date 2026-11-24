@@ -28,7 +28,15 @@ let deps: SubmitDeps;
 beforeEach(() => {
   store = new MemoryOrderStore();
   email = new FakeEmailSender("accept");
-  deps = { store, email, mode: "test", secret: SECRET, clientId: "203.0.113.5", siteUrl: "https://example.test" };
+  deps = {
+    store,
+    email,
+    mode: "test",
+    secret: SECRET,
+    clientId: "203.0.113.5",
+    siteUrl: "https://example.test",
+    acknowledgments: "automatic",
+  };
 });
 
 describe("both product journeys", () => {
@@ -249,5 +257,40 @@ describe("email success and failure", () => {
     await submitOrder(b, deps);
     const token = orderAccessToken(SECRET, b.idempotencyKey);
     expect(email.sent[0].content.text).toContain(`https://example.test/order/${store.orders[0].reference}?key=${token}`);
+  });
+});
+
+describe("manual acknowledgments (automatic email switched off)", () => {
+  beforeEach(() => {
+    deps.acknowledgments = "manual";
+  });
+
+  it("saves the order, sends no email and marks it for manual acknowledgment", async () => {
+    const r = await submitOrder(body("bag"), deps);
+    expect(r.status).toBe(201);
+    if (!r.body.ok) throw new Error();
+    expect(r.body.order.emailStatus).toBe("manual_pending");
+    expect(email.sent).toHaveLength(0);
+    expect(store.orders[0]).toMatchObject({ emailStatus: "manual_pending", emailAttempts: 0 });
+  });
+
+  it("works even when no email service exists at all", async () => {
+    const r = await submitOrder(body("scarf"), { ...deps, email: new NotConfiguredEmailSender() });
+    if (!r.body.ok) throw new Error();
+    expect(r.body.order.emailStatus).toBe("manual_pending");
+  });
+
+  it("lets the founder mark the acknowledgment as sent, once", async () => {
+    await submitOrder(body("bag"), deps);
+    const id = store.orders[0].id;
+    expect((await store.markManuallyAcknowledged(id))?.emailStatus).toBe("manual_sent");
+    expect(await store.markManuallyAcknowledged(id)).toBeNull();
+    expect(store.orders).toHaveLength(1);
+  });
+
+  it("duplicate submissions still create one order", async () => {
+    const b = body("bag");
+    await Promise.all([submitOrder(b, deps), submitOrder(b, deps), submitOrder(b, deps)]);
+    expect(store.orders).toHaveLength(1);
   });
 });

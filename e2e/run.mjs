@@ -52,7 +52,8 @@ async function startServer(port, emailMode) {
       NODE_ENV: "development",
       NEXT_TELEMETRY_DISABLED: "1",
       KL_DEV_MEMORY_BACKEND: "1",
-      KL_DEV_FAKE_EMAIL: emailMode,
+      KL_DEV_FAKE_EMAIL: emailMode, // "" = manual acknowledgments (classroom default)
+      EMAIL_ACKNOWLEDGMENTS: "",
       KL_DEV_FOUNDER_EMAIL: FOUNDER_EMAIL,
       KL_DEV_FOUNDER_PASSWORD: FOUNDER_PASSWORD,
       SUPABASE_URL: "",
@@ -110,7 +111,7 @@ async function main() {
     ctx.setDefaultNavigationTimeout(60000);
     return ctx;
   };
-  const server = await startServer(3107, "accept");
+  const server = await startServer(3107, "");
   const { base } = server;
   const created = [];
   try {
@@ -172,7 +173,16 @@ async function main() {
     check(await p1.getByText("Order request received").first().isVisible(), "acknowledgment page shown");
     const ref1 = (await p1.locator("text=/KL-TEST-[A-Z0-9]{4}-[A-Z0-9]{4}/").first().textContent()).trim();
     created.push(ref1);
-    check(await p1.getByText("Our email service has accepted a confirmation email").isVisible(), "email accepted message (not 'delivered')");
+    check(await visible(p1.getByText("Please print or save this page")), "asks participant to print or save");
+    check((await p1.getByText(/email (was |has been )?sent|accepted a confirmation email/i).count()) === 0, "does not claim an email was sent");
+    check(await p1.getByText("Classroom test order — no payment or production commitment.").isVisible(), "labelled as classroom test order");
+    check(await p1.locator("table.spec td", { hasText: "Participant 7" }).isVisible(), "summary includes name");
+    check(await p1.locator("table.spec td", { hasText: "Waistcoat stitch" }).isVisible(), "summary includes options");
+    check(await p1.getByRole("button", { name: "Print or save as PDF" }).isVisible(), "print/save button shown");
+    await p1.emulateMedia({ media: "print" });
+    check(!(await p1.getByRole("button", { name: "Print or save as PDF" }).isVisible()), "print view hides buttons");
+    check(!(await p1.locator("nav").isVisible()), "print view hides navigation");
+    await p1.emulateMedia({ media: "screen" });
     check(await p1.getByText("Production is not confirmed yet", { exact: false }).isVisible() || (await p1.getByText("not confirmed yet").count()) > 0, "production not confirmed wording");
     await p1.screenshot({ path: path.join(OUT, "04-ack-phone.png"), fullPage: true });
     const ackUrl = p1.url();
@@ -236,6 +246,8 @@ async function main() {
     check(r3.status() === 401, `anonymous status change refused (${r3.status()})`);
     const r4 = await anon.post(`${base}/api/founder/orders/00000000-0000-0000-0000-000000000000/email`, { headers: { Origin: base } });
     check(r4.status() === 401, `anonymous email resend refused (${r4.status()})`);
+    const r5 = await anon.post(`${base}/api/founder/orders/00000000-0000-0000-0000-000000000000/acknowledged`, { headers: { Origin: base } });
+    check(r5.status() === 401, `anonymous "mark acknowledged" refused (${r5.status()})`);
     const p3 = await desk.newPage();
     await p3.goto(`${base}/founder`);
     check(await p3.getByRole("heading", { name: "Founder sign-in" }).isVisible(), "founder page asks for sign-in");
@@ -309,7 +321,19 @@ async function main() {
     for (const ref of created) check((await p3.getByText(ref).count()) > 0, `dashboard shows ${ref}`);
     check((await p3.locator(".order-item svg").count()) === created.length, "each order has its reconstructed preview");
     check(await p3.locator("bdi.tag-exact", { hasText: "Sara & Co" }).first().isVisible(), "exact tag text in dashboard");
+    check(await p3.getByText("Acknowledgment: To acknowledge manually").first().isVisible(), "dashboard shows manual acknowledgment pending");
+    const draftHref = await p3.locator("article.order-item", { hasText: "Sara & Co" }).getByRole("link", { name: "Open email draft" }).getAttribute("href");
+    check(draftHref.startsWith("mailto:p7%40example.com?subject=%5BTEST%20ORDER%5D"), "email draft addressed to participant with [TEST ORDER] subject");
+    check(decodeURIComponent(draftHref).includes("Sara & Co") && decodeURIComponent(draftHref).includes("/order/KL-TEST-"), "email draft has the exact tag text and order link");
     await p3.screenshot({ path: path.join(OUT, "07-dashboard-desktop.png"), fullPage: true });
+    const ackCard = p3.locator("article.order-item", { hasText: "Sara & Co" });
+    await ackCard.getByRole("button", { name: "Mark acknowledgment sent" }).click();
+    await ackCard.getByText("Acknowledgment: Acknowledged manually").waitFor();
+    check((await p3.locator("article.order-item").count()) === created.length, "marking acknowledged did not create an order");
+    const again = await desk.request.post(`${base}/api/founder/orders/${(await (await desk.request.get(`${base}/api/founder/orders`)).json()).orders.find((o) => o.configuration.tagText === "Sara & Co").id}/acknowledged`, { headers: { Origin: base } });
+    check(again.status() === 409, "cannot mark the same order twice");
+    const autoOff = await desk.request.post(`${base}/api/founder/orders/${(await (await desk.request.get(`${base}/api/founder/orders`)).json()).orders[0].id}/email`, { headers: { Origin: base } });
+    check(autoOff.status() === 409, "automatic email refused while switched off");
     const card = p3.locator("article.order-item", { hasText: ref1 });
     await card.getByLabel(`Order status for ${ref1}`).selectOption("awaiting_confirmation_payment");
     await card.getByRole("button", { name: "Update status" }).click();
@@ -341,7 +365,7 @@ async function main() {
   }
 
   // -------------------------------------------------------------------- 5
-  console.log("\nEmail failure behaviour (separate server with failing email)");
+  console.log("\nAutomatic email switched on later: failure behaviour (separate server, failing email)");
   const failing = await startServer(3108, "fail");
   try {
     const ctx = await browser.newContext({ ...devices["iPhone 13"] });
@@ -352,7 +376,7 @@ async function main() {
     await p.getByLabel("I checked the tag text", { exact: false }).check();
     await p.getByRole("button", { name: "Submit test order" }).click();
     await p.waitForURL(/\/order\/KL-TEST-/, { timeout: 30000 });
-    check(await visible(p.getByText("we could not send the confirmation email")), "customer told accurately that email failed");
+    check(await visible(p.getByText("we could not send a confirmation email")), "customer told accurately that email failed");
     check(await p.getByText("Order request received").first().isVisible(), "order still acknowledged as saved");
     await p.screenshot({ path: path.join(OUT, "09-ack-email-failed.png"), fullPage: true });
     await p.goto(`${failing.base}/founder`);

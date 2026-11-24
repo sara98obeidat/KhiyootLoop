@@ -27,6 +27,7 @@ export async function POST(req: Request) {
       mode: runtime.mode,
       secret: runtime.secret,
       siteUrl: runtime.siteUrl,
+      acknowledgments: runtime.acknowledgments,
       clientId: clientIpFromHeaders(req.headers),
     });
     return json(result.body, result.status);
