@@ -4,8 +4,21 @@ import "server-only";
  * Server-side configuration. NONE of these values are sent to the browser:
  * there are deliberately no NEXT_PUBLIC_ variables in this project.
  */
+export function normalizeSupabaseUrl(raw: string | undefined): string {
+  const value = (raw ?? "").trim().replace(/^["']|["']$/g, "");
+  if (!value) return "";
+  try {
+    const u = new URL(value);
+    return `${u.protocol}//${u.host}`;
+  } catch {
+    return value.replace(/\/+$/, "");
+  }
+}
+
 export const env = {
-  supabaseUrl: process.env.SUPABASE_URL?.trim() || "",
+  // Accepts common copy-paste variants ("…supabase.co/", "…supabase.co/rest/v1/")
+  // and keeps only the project address that the Supabase client expects.
+  supabaseUrl: normalizeSupabaseUrl(process.env.SUPABASE_URL),
   supabaseAnonKey: process.env.SUPABASE_ANON_KEY?.trim() || "",
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || "",
   resendApiKey: process.env.RESEND_API_KEY?.trim() || "",

@@ -7,7 +7,13 @@ import { createServerClient } from "@supabase/ssr";
  * and again by row-level security in the database.
  */
 export async function proxy(request: NextRequest) {
-  const url = process.env.SUPABASE_URL;
+  const raw = process.env.SUPABASE_URL?.trim();
+  let url: string | undefined;
+  try {
+    url = raw ? new URL(raw).origin : undefined;
+  } catch {
+    url = undefined;
+  }
   const key = process.env.SUPABASE_ANON_KEY;
   let response = NextResponse.next({ request });
   if (!url || !key) return response;
