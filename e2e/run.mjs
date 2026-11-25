@@ -129,27 +129,33 @@ async function main() {
     await p1.waitForURL(`${base}/customize/bag`);
     check(await noHorizontalScroll(p1), "configurator: no horizontal scroll at phone width");
     check((await p1.locator("dl.dims").textContent()).includes("25 × 20 × 6 cm"), "dimensions shown beside preview");
-    const img = p1.locator("figure .concept-frame img");
-    check((await img.getAttribute("src")).includes("bag-single_crochet-cotton_cord_3mm-cream-v1"), "bag starts on its cream concept image");
-    check(await visible(p1.getByText("Concept preview—final handmade details may vary.")), "concept label shown on the image");
+    const panel = p1.locator(".preview-panel .concept-preview");
+    const ready = () => p1.locator('.preview-panel .concept-preview[data-status="ready"]').waitFor({ timeout: 10000 });
+    await ready();
+    check((await panel.getAttribute("data-base-id")) === "bag-single_crochet-cotton_cord_3mm-base-v1", "bag starts on its single crochet / cotton base photo");
+    check(await visible(p1.getByText("AI-generated concept preview. Size is shown in the dimensions; final yarn shades and handmade details may vary.").first()), "new label shown on the preview");
+    const canvasLit = await p1.evaluate(() => {
+      const c = document.querySelector(".preview-panel canvas");
+      const d = c.getContext("2d").getImageData(512, 600, 1, 1).data;
+      return Array.from(d);
+    });
+    check(canvasLit[3] === 255 && canvasLit[0] < 120, `fabric recoloured to black in the browser (${canvasLit})`);
     await p1.getByRole("radio", { name: /^Small/ }).check();
     check((await p1.locator("dl.dims").textContent()).includes("20 × 15 × 5 cm"), "small dimensions shown");
-    check(await visible(p1.locator(".concept-size-note", { hasText: "20 × 15 × 5 cm" })), "size given by dimensions, image not stretched");
-    const box = await img.boundingBox();
-    check(Math.abs(box.width - box.height) < 2, "image keeps its proportions");
-    // Let the preloaded neighbours arrive, then switching colour must be instant.
-    await p1.waitForLoadState("networkidle");
+    check(await visible(p1.locator(".dim-diagram", { hasText: "Small: 20 × 15 cm front, 5 cm deep" })), "size diagram follows the size; photo not stretched");
+    const box = await p1.locator(".preview-panel .concept-frame").boundingBox();
+    check(Math.abs(box.width - box.height) < 2, "photo keeps its proportions");
+    const t0 = Date.now();
     await p1.getByLabel("Burgundy").check();
-    const swap = await p1.evaluate(() => {
-      const el = document.querySelector("figure .concept-frame img");
-      return { src: el.getAttribute("src"), complete: el.complete && el.naturalWidth > 0 };
-    });
-    check(swap.src.includes("bag-single_crochet-cotton_cord_3mm-burgundy-v1") && swap.complete, "colour change shows the prepared image instantly");
+    await ready();
+    const ms = Date.now() - t0;
+    check(ms < 3000, `colour change applied in the browser (${ms} ms)`);
     await p1.getByRole("radio", { name: /^Waistcoat stitch/ }).check();
-    check(await visible(p1.getByText("No concept image yet for this combination.")), "other stitch without an image says so");
+    await ready();
+    check((await panel.getAttribute("data-base-id")) === "bag-waistcoat-cotton_cord_3mm-base-v1", "stitch change loads the waistcoat base photo");
     await p1.getByRole("radio", { name: /^Polyester macramé cord/ }).check();
-    check(await visible(p1.getByText("No concept image yet for this combination.")), "missing combination says so");
-    check((await p1.locator("figure .concept-frame img").count()) === 0, "no image of another combination shown");
+    await ready();
+    check((await panel.getAttribute("data-base-id")) === "bag-waistcoat-polyester_macrame_2mm-base-v1", "material change loads the polyester base photo");
     await p1.getByRole("radio", { name: /^Metal tag/ }).check();
     // Tag validation: 13 characters is rejected
     await p1.getByLabel("Tag text (one line)").fill("1234567890123");
@@ -232,7 +238,8 @@ async function main() {
     await p2.getByRole("radio", { name: /^Half double crochet/ }).check();
     await p2.getByRole("radio", { name: /^Cotton–acrylic blend/ }).check();
     await p2.getByLabel("Burgundy").check();
-    check((await p2.locator("figure .concept-frame img").getAttribute("src")).includes("scarf-hdc-cotton_acrylic-burgundy-v1"), "scarf shows its burgundy concept image");
+    await p2.locator('.preview-panel .concept-preview[data-status="ready"]').waitFor({ timeout: 10000 });
+    check((await p2.locator(".preview-panel .concept-preview").getAttribute("data-base-id")) === "scarf-hdc-cotton_acrylic-base-v1", "scarf uses its hdc / cotton–acrylic base photo");
     await p2.getByLabel("Tag text (one line)").fill("خيوط لوب");
     check((await p2.locator('figure .concept-overlay text[direction="rtl"]', { hasText: "خيوط لوب" }).count()) === 1, "Arabic tag text drawn right-to-left on the image");
     await p2.screenshot({ path: path.join(OUT, "05-configurator-scarf-desktop.png"), fullPage: true });
@@ -248,7 +255,7 @@ async function main() {
     const ref2 = (await p2.locator("text=/KL-TEST-[A-Z0-9]{4}-[A-Z0-9]{4}/").first().textContent()).trim();
     created.push(ref2);
     check(await p2.locator("bdi.tag-exact", { hasText: "خيوط لوب" }).first().isVisible(), "Arabic tag text saved exactly");
-    check((await p2.locator("figure .concept-frame img").getAttribute("src")).includes("scarf-hdc-cotton_acrylic-burgundy-v1"), "order page shows the saved concept image");
+    check((await p2.locator(".preview-panel .concept-preview").getAttribute("data-base-id")) === "scarf-hdc-cotton_acrylic-base-v1", "order page redraws the preview from the saved base photo");
     await p2.screenshot({ path: path.join(OUT, "06-ack-desktop.png"), fullPage: true });
 
     // ------------------------------------------------------------------ 3
@@ -280,8 +287,8 @@ async function main() {
         body: JSON.stringify({
           idempotencyKey: crypto.randomUUID(),
           configuration: { product: "bag", size: "regular", stitch: "single_crochet", material: "cotton_cord_3mm", color: "black", tagMaterial: "leather", tagText: "Cheap" },
-          previewVersion: "image-preview-v1",
-          previewImageId: null,
+          previewVersion: "recolor-preview-v1",
+          previewImageId: "bag-single_crochet-cotton_cord_3mm-base-v1",
           displayedPriceJod: 1,
           displayedPricingVersion: "pricing-2026-11-24-classroom-v1",
           customer: { name: "Mallory", email: "m@example.com" },
@@ -297,8 +304,8 @@ async function main() {
         body: JSON.stringify({
           idempotencyKey: crypto.randomUUID(),
           configuration: { product: "bag", size: "regular", stitch: "hdc", material: "cotton_cord_3mm", color: "pink", tagMaterial: "gold", tagText: "x" },
-          previewVersion: "image-preview-v1",
-          previewImageId: null,
+          previewVersion: "recolor-preview-v1",
+          previewImageId: "bag-single_crochet-cotton_cord_3mm-base-v1",
           displayedPriceJod: 63,
           displayedPricingVersion: "pricing-2026-11-24-classroom-v1",
           customer: { name: "Mallory", email: "m@example.com" },
@@ -314,8 +321,8 @@ async function main() {
       const body = JSON.stringify({
         idempotencyKey: crypto.randomUUID(),
         configuration: { product: "scarf", size: "regular", stitch: "hdc", material: "cotton_acrylic", color: "cream", tagMaterial: "leather", tagText: "Retry" },
-        previewVersion: "image-preview-v1",
-        previewImageId: "scarf-hdc-cotton_acrylic-cream-v1",
+        previewVersion: "recolor-preview-v1",
+        previewImageId: "scarf-hdc-cotton_acrylic-base-v1",
         displayedPriceJod: 56,
         displayedPricingVersion: "pricing-2026-11-24-classroom-v1",
         customer: { name: "Retry Tester", email: "retry@example.com" },
@@ -342,7 +349,7 @@ async function main() {
     check(shown === created.length, `dashboard lists exactly the ${created.length} saved orders (shows ${shown})`);
     for (const ref of created) check((await p3.getByText(ref).count()) > 0, `dashboard shows ${ref}`);
     check((await p3.locator(".order-item .thumb .concept-preview").count()) === created.length, "each order has its saved preview");
-    check(await visible(p3.getByText(/Concept images: 4 of 40 combinations have an image, 36 missing/)), "dashboard lists missing concept images");
+    check(await visible(p3.getByText(/Base photos: 8 of 8 stitch and material combinations/)), "dashboard lists base photo coverage");
     check(await p3.locator("bdi.tag-exact", { hasText: "Sara & Co" }).first().isVisible(), "exact tag text in dashboard");
     check(await p3.getByText("Acknowledgment: To acknowledge manually").first().isVisible(), "dashboard shows manual acknowledgment pending");
     const draftHref = await p3.locator("article.order-item", { hasText: "Sara & Co" }).getByRole("link", { name: "Open email draft" }).getAttribute("href");
@@ -365,8 +372,9 @@ async function main() {
     check((await p3.locator("article.order-item").count()) === 1, "filter by status works");
     const api = await desk.request.get(`${base}/api/founder/orders`);
     const saved = (await api.json()).orders;
-    check(saved.find((o) => o.configuration.tagText === "خيوط لوب")?.previewImageId === "scarf-hdc-cotton_acrylic-burgundy-v1", "image id saved with the scarf order");
-    check(saved.find((o) => o.configuration.tagText === "Sara & Co")?.previewImageId === null, "no image id saved for a combination without an image");
+    check(saved.find((o) => o.configuration.tagText === "خيوط لوب")?.previewImageId === "scarf-hdc-cotton_acrylic-base-v1", "base photo id saved with the scarf order");
+    const bagSaved = saved.find((o) => o.configuration.tagText === "Sara & Co");
+    check(bagSaved?.previewImageId === "bag-waistcoat-polyester_macrame_2mm-base-v1" && bagSaved?.configuration.color === "burgundy" && bagSaved?.configuration.size === "small" && bagSaved?.configuration.tagMaterial === "metal", "base id, colour, size and tag saved with the bag order");
     check(api.status() === 200, "signed-in founder can use the order API");
     const bogus = await desk.request.post(`${base}/api/founder/orders/${(await api.json()).orders[0].id}/status`, {
       headers: { Origin: base, "Content-Type": "application/json" },

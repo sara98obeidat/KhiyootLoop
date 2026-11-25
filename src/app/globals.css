@@ -128,6 +128,12 @@ main { padding: 20px 0 48px; }
 .concept-tag-closeup p { margin: 0 0 4px; }
 .concept-tag-closeup svg { display: block; width: 100%; max-width: 260px; height: auto; }
 .concept-size-note { margin: 0; }
+.recolor-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.recolor-pending { filter: blur(6px) grayscale(1) opacity(0.5); }
+.recolor-status { position: absolute; top: 45%; left: 0; right: 0; margin: 0 auto; width: fit-content; max-width: 80%; padding: 6px 12px; border-radius: 8px; background: rgba(255, 255, 255, 0.9); font-size: 0.9rem; text-align: center; }
+.dim-diagram { margin: 0; }
+.dim-diagram svg { display: block; width: 100%; max-width: 320px; height: auto; }
+.dim-diagram figcaption { margin-top: 2px; }
 .order-item .thumb .concept-label { font-size: 0.65rem; }
 .dims { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 12px 0 0; font-size: 0.95rem; }
 .dims dt { font-weight: 700; }

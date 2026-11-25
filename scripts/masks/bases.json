@@ -1,0 +1,68 @@
+[
+  {
+    "id": "bag-single_crochet-cotton_cord_3mm-base-v1",
+    "source": "bag_small_single_cotton_cream.png",
+    "threshold": 0.15,
+    "exclude": [],
+    "include": [],
+    "hardware": true
+  },
+  {
+    "id": "bag-single_crochet-polyester_macrame_2mm-base-v1",
+    "source": "bag_small_single_polyester_cream.png",
+    "threshold": 0.15,
+    "exclude": [],
+    "include": [],
+    "hardware": true
+  },
+  {
+    "id": "bag-waistcoat-cotton_cord_3mm-base-v1",
+    "source": "bag_small_waistcoat_cotton_cream.png",
+    "threshold": 0.15,
+    "exclude": [],
+    "include": [],
+    "hardware": true
+  },
+  {
+    "id": "bag-waistcoat-polyester_macrame_2mm-base-v1",
+    "source": "bag_small_waistcoat_polyester_cream.png",
+    "threshold": 0.15,
+    "exclude": [],
+    "include": [],
+    "hardware": true
+  },
+  {
+    "id": "scarf-hdc-cotton_acrylic-base-v1",
+    "source": "scarf_small_hdc_cotton-acrylic_cream.png",
+    "threshold": 0.15,
+    "exclude": [],
+    "include": [],
+    "hardware": false
+  },
+  {
+    "id": "scarf-hdc-acrylic_wool_alpaca-base-v1",
+    "source": "scarf_small_hdc_alpaca-blend_cream.png",
+    "threshold": 0.15,
+    "exclude": [],
+    "include": [],
+    "hardware": false,
+    "growPx": 20
+  },
+  {
+    "id": "scarf-blo_hdc-cotton_acrylic-base-v1",
+    "source": "scarf_small_blo-hdc_cotton-acrylic_cream.png",
+    "threshold": 0.15,
+    "exclude": [],
+    "include": [],
+    "hardware": false
+  },
+  {
+    "id": "scarf-blo_hdc-acrylic_wool_alpaca-base-v1",
+    "source": "scarf_small_blo-hdc_alpaca-blend_cream.png",
+    "threshold": 0.15,
+    "exclude": [],
+    "include": [],
+    "hardware": false,
+    "growPx": 20
+  }
+]

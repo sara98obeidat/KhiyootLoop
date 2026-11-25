@@ -59,7 +59,7 @@ export function OrderCard({ order, ack, detailed = false }: { order: OrderRecord
               <dt>Pricing version</dt><dd>{order.pricingVersion}</dd>
               <dt>Catalog version</dt><dd>{order.catalogVersion}</dd>
               <dt>Preview version</dt><dd>{order.previewVersion}</dd>
-              {order.previewVersion !== "svg-preview-v1" && (<><dt>Preview image</dt><dd>{order.previewImageId ?? "None (no concept image for this combination)"}</dd></>)}
+              {order.previewVersion !== "svg-preview-v1" && (<><dt>{order.previewVersion === "recolor-preview-v1" ? "Base image" : "Preview image"}</dt><dd>{order.previewImageId ?? "None (no image for this combination)"}</dd></>)}
               <dt>Email attempts</dt><dd>{order.emailAttempts} (last: {formatAmman(order.emailLastAttemptAt)})</dd>
               {order.emailError && (<><dt>Email error</dt><dd>{order.emailError}</dd></>)}
               {order.emailProviderId && (<><dt>Resend email id</dt><dd>{order.emailProviderId}</dd></>)}

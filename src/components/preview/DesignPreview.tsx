@@ -1,6 +1,7 @@
 import type { ProductConfiguration } from "@/lib/configuration";
 import { ConceptPreview } from "./ConceptPreview";
 import { ProductPreviewV1 } from "./ProductPreview";
+import { RecolorPreview } from "./RecolorPreview";
 
 /**
  * Renders a saved design with the preview version it was reviewed with.
@@ -16,12 +17,15 @@ export function DesignPreview({
 }: {
   config: ProductConfiguration;
   version: string;
-  /** Concept image stored with the order (image previews only). */
+  /** Image id stored with the order (concept image, or base photo for recoloured previews). */
   imageId?: string | null;
   idPrefix?: string;
   className?: string;
   compact?: boolean;
 }) {
+  if (version === "recolor-preview-v1") {
+    return <RecolorPreview config={config} baseId={imageId ?? null} idPrefix={idPrefix} compact={compact} />;
+  }
   if (version === "image-preview-v1") {
     return <ConceptPreview config={config} imageId={imageId ?? null} idPrefix={idPrefix} compact={compact} />;
   }

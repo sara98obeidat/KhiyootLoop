@@ -1,14 +1,19 @@
 # Status: what works, what is simulated, what is blocked
 
-Last updated: 24 November 2026.
+Last updated: 25 November 2026.
 
 ## Works (implemented and tested automatically)
 
 - Six pages: home, configurator (bag and scarf), review and contact, acknowledgment, founder dashboard, information.
 - Catalog exactly as specified: sizes, stitches, materials (with plain-language descriptions), colours, leather/metal tag. Colour availability is configurable per material.
 - Tag text: 1–12 visible characters including spaces, Arabic and English, exact text preserved, direction-control and invisible characters rejected, always rendered as text (never HTML).
-- Concept image preview (`image-preview-v1`): AI-generated concept images supplied by the founder, one prepared file per exact product × stitch × material × colour. The chosen leather or metal tag and the customer's exact text are drawn as separate layers over the blank tag in the image (Arabic right-to-left), with an enlarged tag beside it. Labelled “Concept preview—final handmade details may vary.” Images are never stretched to suggest size; the dimensions are shown instead. Nearby images are loaded ahead so changes are instant; nothing is generated while the customer browses. A combination without an image says so instead of showing a different one. Each order stores the image id it was shown (inside the order's `configuration` record, so no database change was needed).
-- Coverage: 4 of 40 combinations have an image so far (see `docs/PREVIEW_IMAGES.md` and the “Concept images” panel on the founder dashboard). The stitch and material of the four supplied images were confirmed by the founder on 2026-11-25.
+- Recoloured preview (`recolor-preview-v1`): the founder supplied eight light-cream base photos (4 bags, 4 scarves: two stitches × two materials each). The site loads the right one for the chosen product + stitch + material and recolours **only the crochet fabric** in the browser, using a separate fabric mask per photo (fabric and crochet strap in; background, hardware, gaps and the tag patch out). Lightness from the photo is kept as light and shadow around the chosen colour, so yarn texture and stitches stay visible. No image service is called. Cream shows the original photo. Colours live in an editable palette and are representative screen colours, not verified supplier shades.
+- The leather or metal tag and the customer's exact text are SVG layers (not part of the photo), positioned per photo in `src/config/baseImages.ts`. Arabic is drawn right-to-left; text is shrunk to stay inside the tag and is never HTML.
+- Size is shown by the dimensions (bag small 20 × 15 × 5 cm, regular 25 × 20 × 6 cm; scarf small 150 × 18 cm, regular 180 × 22 cm) and a separate to-scale diagram. The photo is never enlarged or stretched to suggest size.
+- Label on every preview: "AI-generated concept preview. Size is shown in the dimensions; final yarn shades and handmade details may vary."
+- Each order stores the base photo id, colour, size, tag material and exact text, so the founder dashboard redraws the same preview. The server recomputes the id and rejects a mismatch.
+- Known approximations (honest list): recolouring a cream photo is not the same as dyed yarn, especially for very dark or saturated shades; a faint light fringe can show at some fabric edges on dark colours; a thin contact shadow under the bag stays as photographed; the scarf photos have no tag patch, so the scarf tag position is a chosen placement near one end.
+- Concept images from the previous version (`image-preview-v1`) are kept only to redraw orders saved with them.
 - Older orders made with the layered SVG illustration (`svg-preview-v1`) are still redrawn exactly as they were shown.
 - Pricing: demonstration prices in test mode (labelled as test prices), an empty table for costed variant prices, server-side recalculation, manipulated prices rejected, and price plus pricing version stored with each order.
 - Classroom test mode by default: visible notice, "Submit test order" button, only alias and email collected, test flag on every record and email. Live mode is locked behind four readiness switches plus an environment flag.
@@ -22,9 +27,9 @@ Last updated: 24 November 2026.
 
 ## Tested here (automated)
 
-- Unit tests (`npm test`): validation, pricing, both journeys, duplicates, retries, manipulated prices, rate limits, email success, failure and retry, escaping, preview determinism.
+- Unit tests (`npm test`): validation, pricing, both journeys, duplicates, retries, manipulated prices, rate limits, email success, failure and retry, escaping, preview determinism, base photo mapping and mask files, palette, recolouring (background and tag patch untouched), saved-order redraw and the size diagram.
 - 25 database checks (`npm run test:db`): the real migration applied to PostgreSQL 16 with Supabase-style roles. Anonymous visitors and other signed-in users cannot read or change orders, and the founder cannot change prices, tag text or email status, or add a second founder.
-- 71 browser checks (`npm run test:e2e`, Chromium, iPhone 13 / Pixel 7 / desktop): both journeys, Arabic text, keyboard-only use, confirmation summary and print view, manual acknowledgment, double-click, refresh and another device, anonymous access, manipulated price, founder dashboard, email failure and retry, and no sideways scrolling on phones.
+- 83 browser checks (`npm run test:e2e`, Chromium, iPhone 13 / Pixel 7 / desktop): both journeys, the recoloured preview (pixel check that the fabric really changes colour, base photo switches with stitch and material, colour change under 3 seconds), Arabic text, keyboard-only use, confirmation summary and print view, manual acknowledgment, double-click, refresh and another device, anonymous access, manipulated price, founder dashboard, email failure and retry, and no sideways scrolling on phones.
 
 ## Simulated (only in automated tests and local development)
 
@@ -41,7 +46,7 @@ Last updated: 24 November 2026.
 ## Not built (out of MVP scope, or waiting for decisions)
 
 - Online payment, customer accounts, delivery booking and a 360° preview (excluded by the concept report).
-- Real product photographs: none were supplied, so cards use clearly labelled illustrations.
+- Real product photographs: none were supplied. The base photos are AI-generated concept images and are labelled as such.
 - Fibre percentages and care instructions: waiting for supplier labels.
 - Costed variant prices, confirmed availability, payment and delivery arrangements, which are needed before live orders.
 - A privacy notice for live orders (they collect phone numbers and addresses).
