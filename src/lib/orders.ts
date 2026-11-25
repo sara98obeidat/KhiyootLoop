@@ -75,6 +75,8 @@ export interface OrderRecord {
   configuration: ProductConfiguration;
   catalogVersion: string;
   previewVersion: string;
+  /** Concept image shown to the customer (null: no image existed for the combination, or an older order). */
+  previewImageId: string | null;
   priceJod: number;
   currency: string;
   priceType: "demonstration" | "variant";
@@ -97,6 +99,7 @@ export interface NewOrder {
   configuration: ProductConfiguration;
   catalogVersion: string;
   previewVersion: string;
+  previewImageId: string | null;
   priceJod: number;
   currency: string;
   priceType: "demonstration" | "variant";

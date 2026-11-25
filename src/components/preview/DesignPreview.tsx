@@ -1,33 +1,37 @@
 import type { ProductConfiguration } from "@/lib/configuration";
+import { ConceptPreview } from "./ConceptPreview";
 import { ProductPreviewV1 } from "./ProductPreview";
 
 /**
  * Renders a saved design with the preview version it was reviewed with.
  * Add new versions here; never delete old ones while orders still use them.
  */
-const RENDERERS = {
-  "svg-preview-v1": ProductPreviewV1,
-} as const;
-
 export function DesignPreview({
   config,
   version,
+  imageId,
   idPrefix,
   className,
+  compact,
 }: {
   config: ProductConfiguration;
   version: string;
+  /** Concept image stored with the order (image previews only). */
+  imageId?: string | null;
   idPrefix?: string;
   className?: string;
+  compact?: boolean;
 }) {
-  const Renderer = RENDERERS[version as keyof typeof RENDERERS];
-  if (!Renderer) {
-    return (
-      <p className="notice notice-warn">
-        This order was saved with preview version “{version}”, which this site version cannot draw.
-        The saved options below are still exact.
-      </p>
-    );
+  if (version === "image-preview-v1") {
+    return <ConceptPreview config={config} imageId={imageId ?? null} idPrefix={idPrefix} compact={compact} />;
   }
-  return <Renderer config={config} idPrefix={idPrefix} className={className} />;
+  if (version === "svg-preview-v1") {
+    return <ProductPreviewV1 config={config} idPrefix={idPrefix} className={className} />;
+  }
+  return (
+    <p className="notice notice-warn">
+      This order was saved with preview version “{version}”, which this site version cannot draw.
+      The saved options below are still exact.
+    </p>
+  );
 }

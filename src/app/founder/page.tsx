@@ -1,3 +1,4 @@
+import { PreviewCoverage } from "@/components/founder/PreviewCoverage";
 import type { Metadata } from "next";
 import { FounderGate } from "@/components/founder/FounderGate";
 import { LogoutButton } from "@/components/founder/FounderActions";
@@ -55,6 +56,7 @@ export default async function FounderDashboard({ searchParams }: { searchParams:
       {session.backend === "memory" && (
         <p className="notice notice-warn small" style={{ marginTop: 12 }}>Development mode: these orders are in temporary memory, not Supabase.</p>
       )}
+      <PreviewCoverage />
       <form className="card filters" method="get" style={{ marginTop: 16 }} role="search" aria-label="Filter orders">
         <div>
           <label className="field" htmlFor="q">Search</label>

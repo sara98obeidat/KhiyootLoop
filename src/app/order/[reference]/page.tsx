@@ -144,8 +144,12 @@ export default async function OrderReceivedPage({
       </div>
       <div className="preview-panel">
         <figure className="card">
-          <DesignPreview config={order.configuration} version={order.previewVersion} idPrefix="ack" />
-          <figcaption>Illustrative preview of the design you submitted. Handmade texture and screen colours vary.</figcaption>
+          <DesignPreview config={order.configuration} version={order.previewVersion} imageId={order.previewImageId} idPrefix="ack" />
+          <figcaption>
+            {order.previewVersion === "svg-preview-v1"
+              ? "Illustrative preview of the design you submitted. Handmade texture and screen colours vary."
+              : "The concept preview you saw when you submitted. Your order is made to the options in the summary."}
+          </figcaption>
         </figure>
       </div>
     </div>

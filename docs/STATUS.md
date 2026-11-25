@@ -7,7 +7,9 @@ Last updated: 24 November 2026.
 - Six pages: home, configurator (bag and scarf), review and contact, acknowledgment, founder dashboard, information.
 - Catalog exactly as specified: sizes, stitches, materials (with plain-language descriptions), colours, leather/metal tag. Colour availability is configurable per material.
 - Tag text: 1–12 visible characters including spaces, Arabic and English, exact text preserved, direction-control and invisible characters rejected, always rendered as text (never HTML).
-- Layered SVG preview: silhouette and proportions by size, colour, a distinct pattern per stitch, yarn finish (matte cord, glossy cord, smooth blend, fuzzy blend), tag material and exact tag text, with close-ups. Labelled as an illustration. Versioned (`svg-preview-v1`), and the dashboard redraws each order from its stored configuration.
+- Concept image preview (`image-preview-v1`): AI-generated concept images supplied by the founder, one prepared file per exact product × stitch × material × colour. The chosen leather or metal tag and the customer's exact text are drawn as separate layers over the blank tag in the image (Arabic right-to-left), with an enlarged tag beside it. Labelled “Concept preview—final handmade details may vary.” Images are never stretched to suggest size; the dimensions are shown instead. Nearby images are loaded ahead so changes are instant; nothing is generated while the customer browses. A combination without an image says so instead of showing a different one. Each order stores the image id it was shown (inside the order's `configuration` record, so no database change was needed).
+- Coverage: 4 of 40 combinations have an image so far (see `docs/PREVIEW_IMAGES.md` and the “Concept images” panel on the founder dashboard). The stitch and material shown in the four supplied images were read from the pictures, not stated by the founder, and need confirming.
+- Older orders made with the layered SVG illustration (`svg-preview-v1`) are still redrawn exactly as they were shown.
 - Pricing: demonstration prices in test mode (labelled as test prices), an empty table for costed variant prices, server-side recalculation, manipulated prices rejected, and price plus pricing version stored with each order.
 - Classroom test mode by default: visible notice, "Submit test order" button, only alias and email collected, test flag on every record and email. Live mode is locked behind four readiness switches plus an environment flag.
 - Orders: unique reference, timestamp, test/live flag, contact, all options, price snapshot, catalog/pricing/preview versions, order status and email status.
@@ -20,7 +22,7 @@ Last updated: 24 November 2026.
 
 ## Tested here (automated)
 
-- 67 unit tests (`npm test`): validation, pricing, both journeys, duplicates, retries, manipulated prices, rate limits, email success, failure and retry, escaping, preview determinism.
+- Unit tests (`npm test`): validation, pricing, both journeys, duplicates, retries, manipulated prices, rate limits, email success, failure and retry, escaping, preview determinism.
 - 25 database checks (`npm run test:db`): the real migration applied to PostgreSQL 16 with Supabase-style roles. Anonymous visitors and other signed-in users cannot read or change orders, and the founder cannot change prices, tag text or email status, or add a second founder.
 - 71 browser checks (`npm run test:e2e`, Chromium, iPhone 13 / Pixel 7 / desktop): both journeys, Arabic text, keyboard-only use, confirmation summary and print view, manual acknowledgment, double-click, refresh and another device, anonymous access, manipulated price, founder dashboard, email failure and retry, and no sideways scrolling on phones.
 

@@ -32,7 +32,9 @@ Use two devices if possible: a phone (customer) and a laptop (founder).
 ## 2. Scarf journey with Arabic text (laptop, keyboard only)
 - [ ] Using only Tab, Shift+Tab, arrow keys, Space and Enter, configure a scarf: Small, back-loop HDC, acrylic–wool–alpaca (shows "Contains wool"), navy, metal tag.
 - [ ] Focus is always visible (purple ring).
-- [ ] Tag text `خيوط لوب`: the preview shows it right-to-left and correctly joined.
+- [ ] Tag text `خيوط لوب`: the preview shows it right-to-left and correctly joined, on the tag in the image and in the enlarged tag.
+- [ ] The concept image matches the chosen colour, and “Concept preview—final handmade details may vary.” is readable on it.
+- [ ] Choosing a combination with no image (for example a black bag) says “No concept image yet for this combination” and shows no picture.
 - [ ] Price shows **56 JOD** (test price).
 - [ ] ★ Submit with a second email address. The confirmation page appears with the summary.
 
