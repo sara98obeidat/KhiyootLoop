@@ -2,7 +2,7 @@
 
 A website where customers design a handmade crochet **bag** or **scarf**:
 size, stitch, yarn, colour and a personalised leather or metal tag. They
-see a concept-image preview with their tag and text, and submit an order request. The founder
+see a recoloured concept preview with their tag and text, and submit an order request. The founder
 reviews orders in a private dashboard.
 
 The site starts in **classroom test mode**: every order and email is marked as a
@@ -28,7 +28,7 @@ delivery (see `docs/SETUP.md` → "Switching on real orders").
 | Path | Purpose |
 |---|---|
 | `/` | Brand proposition, two product cards, customization buttons |
-| `/customize/bag`, `/customize/scarf` | Configurator with concept-image preview, tag/text layers and dimensions |
+| `/customize/bag`, `/customize/scarf` | Configurator with recoloured preview, tag/text layers, dimensions and a to-scale size diagram |
 | `/review` | Full specification, exact tag text, contact form, "Submit test order" |
 | `/order/[reference]?key=…` | Acknowledgment, read back from the database (private link) |
 | `/founder` | Founder sign-in and order dashboard (filter, status, email retry) |
@@ -45,10 +45,15 @@ delivery (see `docs/SETUP.md` → "Switching on real orders").
 | Test/live mode switch and readiness checklist | `src/config/site.ts` |
 | Tag text rules (12 visible characters, Arabic/English) | `src/lib/tagText.ts` |
 | Server-side order validation, pricing, idempotency, rate limit, email | `src/lib/orderService.ts` |
-| Concept image mapping (which image belongs to which combination) | `src/config/previewImages.ts` |
-| Concept image files (WebP, never stretched) | `public/previews/` |
-| Which combinations still need an image | `docs/PREVIEW_IMAGES.md` (`npm run previews:report`) |
-| Preview components (`image-preview-v1`, legacy `svg-preview-v1`) | `src/components/preview/` |
+| Base photos: one light-cream photo per product + stitch + material, tag position on each | `src/config/baseImages.ts` |
+| Colour palette (representative screen colours, editable hex values) | `src/config/palette.ts` |
+| Base photo and fabric mask files | `public/previews/base/` |
+| Mask tool (makes the masks and WebP files from the founder's PNGs) | `scripts/masks/` (see its README) |
+| Browser recolouring (fabric only, inside the mask) | `src/lib/recolor.ts` |
+| Preview label text | `RECOLOR_LABEL` in `src/config/baseImages.ts` |
+| Which combinations still need a base photo, palette table | `docs/PREVIEW_IMAGES.md` (`npm run previews:report`) |
+| Preview components (`recolor-preview-v1`; legacy `image-preview-v1` and `svg-preview-v1` for older orders) | `src/components/preview/` |
+| Legacy concept image mapping (older orders only) | `src/config/previewImages.ts` |
 | Database schema + RLS | `supabase/migrations/` |
 
 ## How an order is handled

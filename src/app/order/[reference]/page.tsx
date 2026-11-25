@@ -148,7 +148,7 @@ export default async function OrderReceivedPage({
           <figcaption>
             {order.previewVersion === "svg-preview-v1"
               ? "Illustrative preview of the design you submitted. Handmade texture and screen colours vary."
-              : "The concept preview you saw when you submitted. Your order is made to the options in the summary."}
+              : "The preview you saw when you submitted. Your order is made to the options and dimensions in the summary."}
           </figcaption>
         </figure>
       </div>

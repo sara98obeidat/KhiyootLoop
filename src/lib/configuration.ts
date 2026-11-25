@@ -7,7 +7,7 @@ import {
   isProductId,
   type ProductId,
 } from "@/config/catalog";
-import { IMAGE_PREVIEW_VERSION, PREVIEW_IMAGES } from "@/config/previewImages";
+import { BASE_IMAGES, RECOLOR_PREVIEW_VERSION } from "@/config/baseImages";
 import { validateTagText } from "./tagText";
 
 /** The design a customer configured. Stored with every order. */
@@ -22,7 +22,7 @@ export interface ProductConfiguration {
 }
 
 /** Preview shown to customers. Older orders keep the version they were made with ("svg-preview-v1"). */
-export const PREVIEW_VERSION = IMAGE_PREVIEW_VERSION;
+export const PREVIEW_VERSION = RECOLOR_PREVIEW_VERSION;
 
 export type ConfigField = keyof ProductConfiguration;
 
@@ -119,19 +119,12 @@ export function catalogVersion(): string {
 /** Default selection for a product (first available option of each). */
 export function defaultConfiguration(productId: ProductId): ProductConfiguration {
   const p = PRODUCTS[productId];
-  // Start on a combination that has a concept image, when one is orderable.
-  const pictured = PREVIEW_IMAGES.find(
-    (i) =>
-      i.product === p.id &&
-      i.size === null &&
-      findOption(p.stitches, i.stitch) &&
-      findOption(p.materials, i.material) &&
-      isColorAvailable(p.id, i.material, i.color),
+  // Start on a stitch and material that has a base photo.
+  const pictured = BASE_IMAGES.find(
+    (b) => b.product === p.id && findOption(p.stitches, b.stitch) && findOption(p.materials, b.material),
   );
   const material = findOption(p.materials, pictured?.material) ?? p.materials[0];
-  const color = pictured
-    ? findOption(p.colors, pictured.color)!
-    : (p.colors.find((c) => isColorAvailable(p.id, material.id, c.id)) ?? p.colors[0]);
+  const color = p.colors.find((c) => isColorAvailable(p.id, material.id, c.id)) ?? p.colors[0];
   return {
     product: p.id,
     size: p.sizes[1]?.id ?? p.sizes[0].id,

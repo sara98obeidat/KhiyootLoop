@@ -12,8 +12,7 @@ import {
 } from "@/config/catalog";
 import { DEMONSTRATION_PRICE_NOTE } from "@/config/pricing";
 import type { OrderMode } from "@/config/site";
-import { ConceptPreview } from "./preview/ConceptPreview";
-import { PreloadImages } from "./preview/PreloadImages";
+import { RecolorPreview } from "./preview/RecolorPreview";
 import { defaultConfiguration, validateConfiguration, type ProductConfiguration } from "@/lib/configuration";
 import { loadDraft, saveDraft } from "@/lib/draft";
 import { formatJod, quotePrice } from "@/lib/pricing";
@@ -91,8 +90,7 @@ export function Configurator({ productId, mode }: { productId: ProductId; mode: 
     <div className="configurator">
       <div className="preview-panel">
         <figure className="card">
-          <ConceptPreview config={config} idPrefix="cfg" priority />
-          <PreloadImages config={config} />
+          <RecolorPreview config={config} idPrefix="cfg" />
           <dl className="dims" aria-label="Dimensions">
             <dt>Size</dt>
             <dd>{size.label}</dd>

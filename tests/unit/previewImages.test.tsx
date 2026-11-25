@@ -14,7 +14,7 @@ import { ConceptPreview } from "@/components/preview/ConceptPreview";
 import { DesignPreview } from "@/components/preview/DesignPreview";
 import { defaultConfiguration, type ProductConfiguration } from "@/lib/configuration";
 
-describe("concept image mapping", () => {
+describe("legacy concept image mapping (image-preview-v1)", () => {
   it("has one valid, existing file per entry", () => {
     const ids = new Set<string>();
     for (const img of PREVIEW_IMAGES) {
@@ -49,11 +49,6 @@ describe("concept image mapping", () => {
     expect(m?.sizeMatched).toBe(false);
   });
 
-  it("starts each product on a pictured combination", () => {
-    expect(findPreviewImage(defaultConfiguration("bag"))).not.toBeNull();
-    expect(findPreviewImage(defaultConfiguration("scarf"))).not.toBeNull();
-  });
-
   it("reports every orderable combination", () => {
     const rows = previewCoverage();
     let expected = 0;
@@ -73,9 +68,23 @@ describe("concept image mapping", () => {
   });
 });
 
-describe("concept preview rendering", () => {
-  const bag: ProductConfiguration = { ...defaultConfiguration("bag"), tagText: "Sara" };
-  const scarf: ProductConfiguration = { ...defaultConfiguration("scarf"), tagText: "سارة", tagMaterial: "metal" };
+describe("legacy concept preview rendering", () => {
+  // Legacy concept-image preview, kept for orders saved with "image-preview-v1".
+  const bag: ProductConfiguration = {
+    ...defaultConfiguration("bag"),
+    stitch: "single_crochet",
+    material: "cotton_cord_3mm",
+    color: "cream",
+    tagText: "Sara",
+  };
+  const scarf: ProductConfiguration = {
+    ...defaultConfiguration("scarf"),
+    stitch: "hdc",
+    material: "cotton_acrylic",
+    color: "cream",
+    tagText: "سارة",
+    tagMaterial: "metal",
+  };
 
   it("layers the image, tag and exact text, with the concept label", () => {
     const html = renderToStaticMarkup(<ConceptPreview config={bag} />);

@@ -3,7 +3,7 @@ import { defaultConfiguration, PREVIEW_VERSION } from "@/lib/configuration";
 import { FakeEmailSender, NotConfiguredEmailSender } from "@/lib/email/sender";
 import { RATE_LIMITS, sendAcknowledgment, submitOrder, type SubmitDeps } from "@/lib/orderService";
 import { PRICING_VERSION } from "@/config/pricing";
-import { previewImageId } from "@/config/previewImages";
+import { baseImageId } from "@/config/baseImages";
 import { MemoryOrderStore } from "@/lib/store/memoryStore";
 import { orderAccessToken, sha256Hex } from "@/lib/security";
 import { randomUUID } from "node:crypto";
@@ -21,7 +21,7 @@ function body(product: "bag" | "scarf", overrides: Record<string, unknown> = {})
     idempotencyKey: randomUUID(),
     configuration,
     previewVersion: PREVIEW_VERSION,
-    previewImageId: previewImageId(configuration),
+    previewImageId: baseImageId(configuration),
     displayedPriceJod: product === "bag" ? 63 : 56,
     displayedPricingVersion: PRICING_VERSION,
     customer: { name: "Participant 7", email: "p7@example.com" },
@@ -303,31 +303,35 @@ describe("manual acknowledgments (automatic email switched off)", () => {
   });
 });
 
-describe("concept preview image", () => {
-  it("saves the image id of the concept image the customer saw", async () => {
-    const b = body("bag");
-    expect(b.previewImageId).toBe("bag-single_crochet-cotton_cord_3mm-cream-v1");
+describe("recoloured preview: base image id", () => {
+  it("saves the base photo id together with colour, size, tag and exact text", async () => {
+    const b = body("bag", { configuration: { color: "teal", size: "small", tagMaterial: "metal" } });
+    expect(b.previewImageId).toBe("bag-single_crochet-cotton_cord_3mm-base-v1");
     const r = await submitOrder(b, deps);
     expect(r.status).toBe(201);
     const saved = await store.getByIdempotencyKey(b.idempotencyKey);
-    expect(saved?.previewImageId).toBe("bag-single_crochet-cotton_cord_3mm-cream-v1");
-    expect(saved?.previewVersion).toBe("image-preview-v1");
+    expect(saved?.previewImageId).toBe("bag-single_crochet-cotton_cord_3mm-base-v1");
+    expect(saved?.previewVersion).toBe("recolor-preview-v1");
+    expect(saved?.configuration).toMatchObject({ color: "teal", size: "small", tagMaterial: "metal", tagText: "Sara" });
   });
 
-  it("saves null when no image exists for the combination", async () => {
-    const b = body("bag", { configuration: { color: "black" } });
-    expect(b.previewImageId).toBeNull();
-    const r = await submitOrder(b, deps);
-    expect(r.status).toBe(201);
-    expect((await store.getByIdempotencyKey(b.idempotencyKey))?.previewImageId).toBeNull();
+  it("uses the base photo of the chosen stitch and material", async () => {
+    const b = body("scarf", { configuration: { stitch: "blo_hdc", material: "acrylic_wool_alpaca", color: "navy" } });
+    expect(b.previewImageId).toBe("scarf-blo_hdc-acrylic_wool_alpaca-base-v1");
+    expect((await submitOrder(b, deps)).status).toBe(201);
   });
 
-  it("rejects an image id that does not belong to the chosen options", async () => {
-    const b = body("bag", { previewImageId: "bag-single_crochet-cotton_cord_3mm-burgundy-v1" });
+  it("rejects a base id that does not belong to the chosen options", async () => {
+    const b = body("bag", { previewImageId: "bag-waistcoat-cotton_cord_3mm-base-v1" });
     const r = await submitOrder(b, deps);
     expect(r.status).toBe(409);
     expect(await store.getByIdempotencyKey(b.idempotencyKey)).toBeNull();
     const missing = await submitOrder(body("scarf", { previewImageId: undefined }), deps);
     expect(missing.status).toBe(400);
+  });
+
+  it("rejects orders made with an older preview version", async () => {
+    const r = await submitOrder(body("bag", { previewVersion: "image-preview-v1" }), deps);
+    expect(r.status).toBe(409);
   });
 });

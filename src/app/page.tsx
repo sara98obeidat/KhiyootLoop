@@ -4,7 +4,7 @@ import logo from "../../public/brand/khiyootloop-logo.png";
 import { PRODUCTS, PRODUCTION_ESTIMATE_TEXT } from "@/config/catalog";
 import { DEMONSTRATION_PRICES } from "@/config/pricing";
 import { currentOrderMode } from "@/config/site";
-import { ConceptPreview } from "@/components/preview/ConceptPreview";
+import { RecolorPreview } from "@/components/preview/RecolorPreview";
 import { defaultConfiguration } from "@/lib/configuration";
 import { formatJod } from "@/lib/pricing";
 
@@ -42,7 +42,7 @@ export default function HomePage() {
           {cards.map(({ id, product, config }) => (
             <article key={id} className="card product-card">
               <div className="art">
-                <ConceptPreview config={config} idPrefix={`home-${id}`} compact />
+                <RecolorPreview config={config} idPrefix={`home-${id}`} compact />
               </div>
               <p className="placeholder-label">
                 AI-generated concept image, not a photograph of a finished piece. Real photos will be added once

@@ -14,6 +14,8 @@
  *    version of the catalog they were made with.
  */
 
+import { PALETTE } from "./palette";
+
 export const CATALOG_VERSION = "catalog-2026-11-24-v1";
 
 export type ProductId = "bag" | "scarf";
@@ -56,16 +58,10 @@ export interface ProductDefinition {
   colors: ColorOption[];
 }
 
-export const COLORS: Record<string, ColorOption> = {
-  black: { id: "black", label: "Black", hex: "#1f1f21" },
-  cream: { id: "cream", label: "Cream", hex: "#ece2cc" },
-  burgundy: { id: "burgundy", label: "Burgundy", hex: "#74202f" },
-  teal: { id: "teal", label: "Teal", hex: "#1d6b6b" },
-  gray: { id: "gray", label: "Gray", hex: "#8b8e90" },
-  charcoal: { id: "charcoal", label: "Charcoal", hex: "#3b3c3f" },
-  dusty_pink: { id: "dusty_pink", label: "Dusty pink", hex: "#d2a3a4" },
-  navy: { id: "navy", label: "Navy", hex: "#1f2a4b" },
-};
+// Colour names and screen colours live in ./palette.ts (one editable palette).
+export const COLORS: Record<string, ColorOption> = Object.fromEntries(
+  Object.entries(PALETTE).map(([id, c]) => [id, { id, label: c.label, hex: c.hex }]),
+);
 
 export const PRODUCTS: Record<ProductId, ProductDefinition> = {
   bag: {

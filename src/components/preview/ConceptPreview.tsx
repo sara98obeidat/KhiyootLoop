@@ -1,10 +1,11 @@
 import { PRODUCTS, TAG_MATERIALS, findOption } from "@/config/catalog";
-import { CONCEPT_LABEL, findPreviewImage, getPreviewImageById, type TagBox } from "@/config/previewImages";
+import { CONCEPT_LABEL, findPreviewImage, getPreviewImageById } from "@/config/previewImages";
+import { TagDefs, TagGraphic } from "./TagLayer";
 import type { ProductConfiguration } from "@/lib/configuration";
-import { countVisibleCharacters, textDirection } from "@/lib/tagText";
 
 /**
- * Image-based preview (version "image-preview-v1").
+ * Image-based preview (version "image-preview-v1"), kept to redraw orders saved
+ * with it. New orders use RecolorPreview ("recolor-preview-v1").
  *
  * Three separate layers:
  *  1. a prepared concept image made for exactly this product, stitch, material
@@ -109,98 +110,5 @@ export function ConceptPreview({
         </p>
       )}
     </div>
-  );
-}
-
-function TagDefs({ prefix }: { prefix: string }) {
-  return (
-    <defs>
-      <linearGradient id={`${prefix}-leather`} x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#9a6038" />
-        <stop offset="1" stopColor="#6e4026" />
-      </linearGradient>
-      <linearGradient id={`${prefix}-metal`} x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stopColor="#eef0f2" />
-        <stop offset="0.45" stopColor="#b9bdc2" />
-        <stop offset="0.55" stopColor="#d6d9dc" />
-        <stop offset="1" stopColor="#9da2a8" />
-      </linearGradient>
-    </defs>
-  );
-}
-
-function TagGraphic({
-  prefix,
-  box,
-  material,
-  text,
-  pad = 0,
-}: {
-  prefix: string;
-  box: TagBox;
-  material: string;
-  text: string;
-  pad?: number;
-}) {
-  const metal = material === "metal";
-  const x = box.x - pad;
-  const y = box.y - pad;
-  const w = box.w + pad * 2;
-  const h = box.h + pad * 2;
-  const len = Math.max(1, countVisibleCharacters(text));
-  const dir = textDirection(text);
-  // Keep the text clear of the rivets (metal) or the stitched border (leather).
-  const textWidth = metal ? w - h * 0.62 : w - h * 0.3;
-  const fontSize = Math.min(h * 0.5, textWidth / (len * 0.6));
-  const r = h * 0.16;
-  const cx = x + w / 2;
-  const cy = y + h / 2;
-  return (
-    <g transform={box.rotate ? `rotate(${box.rotate} ${cx} ${cy})` : undefined}>
-      <rect x={x + h * 0.03} y={y + h * 0.05} width={w} height={h} rx={r} fill="#000" opacity={0.25} />
-      <rect
-        x={x}
-        y={y}
-        width={w}
-        height={h}
-        rx={r}
-        fill={metal ? `url(#${prefix}-metal)` : `url(#${prefix}-leather)`}
-        stroke={metal ? "#7c8086" : "#4f2e1a"}
-        strokeWidth={Math.max(0.6, h * 0.03)}
-      />
-      {metal ? (
-        <>
-          <circle cx={x + h * 0.2} cy={cy} r={h * 0.06} fill="#80858b" />
-          <circle cx={x + w - h * 0.2} cy={cy} r={h * 0.06} fill="#80858b" />
-        </>
-      ) : (
-        <rect
-          x={x + h * 0.1}
-          y={y + h * 0.1}
-          width={w - h * 0.2}
-          height={h - h * 0.2}
-          rx={r * 0.7}
-          fill="none"
-          stroke="#e9d3b4"
-          strokeWidth={Math.max(0.5, h * 0.03)}
-          strokeDasharray={`${h * 0.09} ${h * 0.07}`}
-          opacity={0.85}
-        />
-      )}
-      <text
-        x={cx}
-        y={cy}
-        fontSize={fontSize}
-        textAnchor="middle"
-        dominantBaseline="central"
-        direction={dir}
-        unicodeBidi="isolate"
-        fontFamily="'Noto Sans Arabic','Geeza Pro','Segoe UI',Tahoma,Arial,sans-serif"
-        fontWeight={600}
-        fill={metal ? "#2d2f33" : "#f5e6cc"}
-      >
-        {text}
-      </text>
-    </g>
   );
 }
