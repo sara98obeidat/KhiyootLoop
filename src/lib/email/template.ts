@@ -51,7 +51,7 @@ export function buildAcknowledgmentEmail(order: OrderRecord, orderLink?: string)
     `Next step: ${nextStep}`,
     orderLink ? `\nView your order request: ${orderLink}` : "",
     "",
-    "The preview on the website is an illustration. Handmade texture and screen colours vary.",
+    "The preview on the website is a concept image, not a photograph. Final handmade details may vary.",
     "",
     "KhiyootLoop — handmade crochet, Jordan",
   ].filter((l, i, a) => !(l === "" && a[i - 1] === ""));
@@ -83,7 +83,7 @@ ${rows
 <p>${escapeHtml(PRODUCTION_ESTIMATE_TEXT)}</p>
 <p><strong>Next step:</strong> ${escapeHtml(nextStep)}</p>
 ${orderLink ? `<p><a href="${escapeHtml(orderLink)}" style="color:#0e5e63;">View your order request</a></p>` : ""}
-<p style="font-size:13px;color:#555;">The preview on the website is an illustration. Handmade texture and screen colours vary.</p>
+<p style="font-size:13px;color:#555;">The preview on the website is a concept image, not a photograph. Final handmade details may vary.</p>
 <p style="font-size:13px;color:#555;">KhiyootLoop — handmade crochet, Jordan</p>
 </div></body></html>`;
 

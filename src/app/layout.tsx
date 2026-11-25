@@ -7,7 +7,7 @@ import { ModeBanner } from "@/components/ModeBanner";
 export const metadata: Metadata = {
   title: { default: "KhiyootLoop — handmade crochet, made to order", template: "%s · KhiyootLoop" },
   description:
-    "Design a handmade crochet bag or scarf: choose size, stitch, yarn, colour and a personalised tag, and see an illustrative preview.",
+    "Design a handmade crochet bag or scarf: choose size, stitch, yarn, colour and a personalised tag, and see a concept preview.",
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#fbf7ef" };

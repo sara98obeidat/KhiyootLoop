@@ -3,6 +3,7 @@ import { defaultConfiguration, PREVIEW_VERSION } from "@/lib/configuration";
 import { FakeEmailSender, NotConfiguredEmailSender } from "@/lib/email/sender";
 import { RATE_LIMITS, sendAcknowledgment, submitOrder, type SubmitDeps } from "@/lib/orderService";
 import { PRICING_VERSION } from "@/config/pricing";
+import { previewImageId } from "@/config/previewImages";
 import { MemoryOrderStore } from "@/lib/store/memoryStore";
 import { orderAccessToken, sha256Hex } from "@/lib/security";
 import { randomUUID } from "node:crypto";
@@ -10,14 +11,21 @@ import { randomUUID } from "node:crypto";
 const SECRET = "test-secret-test-secret-test-secret-1234";
 
 function body(product: "bag" | "scarf", overrides: Record<string, unknown> = {}) {
+  const { configuration: configOverrides, ...rest } = overrides;
+  const configuration = {
+    ...defaultConfiguration(product),
+    tagText: product === "bag" ? "Sara" : "سارة",
+    ...((configOverrides as object | undefined) ?? {}),
+  };
   return {
     idempotencyKey: randomUUID(),
-    configuration: { ...defaultConfiguration(product), tagText: product === "bag" ? "Sara" : "سارة" },
+    configuration,
     previewVersion: PREVIEW_VERSION,
+    previewImageId: previewImageId(configuration),
     displayedPriceJod: product === "bag" ? 63 : 56,
     displayedPricingVersion: PRICING_VERSION,
     customer: { name: "Participant 7", email: "p7@example.com" },
-    ...overrides,
+    ...rest,
   };
 }
 
@@ -292,5 +300,34 @@ describe("manual acknowledgments (automatic email switched off)", () => {
     const b = body("bag");
     await Promise.all([submitOrder(b, deps), submitOrder(b, deps), submitOrder(b, deps)]);
     expect(store.orders).toHaveLength(1);
+  });
+});
+
+describe("concept preview image", () => {
+  it("saves the image id of the concept image the customer saw", async () => {
+    const b = body("bag");
+    expect(b.previewImageId).toBe("bag-single_crochet-cotton_cord_3mm-cream-v1");
+    const r = await submitOrder(b, deps);
+    expect(r.status).toBe(201);
+    const saved = await store.getByIdempotencyKey(b.idempotencyKey);
+    expect(saved?.previewImageId).toBe("bag-single_crochet-cotton_cord_3mm-cream-v1");
+    expect(saved?.previewVersion).toBe("image-preview-v1");
+  });
+
+  it("saves null when no image exists for the combination", async () => {
+    const b = body("bag", { configuration: { color: "black" } });
+    expect(b.previewImageId).toBeNull();
+    const r = await submitOrder(b, deps);
+    expect(r.status).toBe(201);
+    expect((await store.getByIdempotencyKey(b.idempotencyKey))?.previewImageId).toBeNull();
+  });
+
+  it("rejects an image id that does not belong to the chosen options", async () => {
+    const b = body("bag", { previewImageId: "bag-single_crochet-cotton_cord_3mm-burgundy-v1" });
+    const r = await submitOrder(b, deps);
+    expect(r.status).toBe(409);
+    expect(await store.getByIdempotencyKey(b.idempotencyKey)).toBeNull();
+    const missing = await submitOrder(body("scarf", { previewImageId: undefined }), deps);
+    expect(missing.status).toBe(400);
   });
 });

@@ -12,7 +12,8 @@ import {
 } from "@/config/catalog";
 import { DEMONSTRATION_PRICE_NOTE } from "@/config/pricing";
 import type { OrderMode } from "@/config/site";
-import { ProductPreviewV1 } from "./preview/ProductPreview";
+import { ConceptPreview } from "./preview/ConceptPreview";
+import { PreloadImages } from "./preview/PreloadImages";
 import { defaultConfiguration, validateConfiguration, type ProductConfiguration } from "@/lib/configuration";
 import { loadDraft, saveDraft } from "@/lib/draft";
 import { formatJod, quotePrice } from "@/lib/pricing";
@@ -90,11 +91,8 @@ export function Configurator({ productId, mode }: { productId: ProductId; mode: 
     <div className="configurator">
       <div className="preview-panel">
         <figure className="card">
-          <ProductPreviewV1 config={config} idPrefix="cfg" />
-          <figcaption>
-            <strong>Illustrative preview.</strong> Handmade texture and screen colours vary. The real item is
-            made by hand, so small differences are normal.
-          </figcaption>
+          <ConceptPreview config={config} idPrefix="cfg" priority />
+          <PreloadImages config={config} />
           <dl className="dims" aria-label="Dimensions">
             <dt>Size</dt>
             <dd>{size.label}</dd>

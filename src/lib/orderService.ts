@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { CATALOG_VERSION } from "@/config/catalog";
+import { previewImageId as findPreviewImageId } from "@/config/previewImages";
 import type { OrderMode } from "@/config/site";
 import { PREVIEW_VERSION, validateConfiguration, type ConfigField } from "./configuration";
 import { quotePrice } from "./pricing";
@@ -43,6 +44,8 @@ export const SubmitOrderSchema = z
     idempotencyKey: z.uuid(),
     configuration: z.record(z.string(), z.unknown()),
     previewVersion: z.string().max(40),
+    /** Concept image the customer saw (null when none exists for the combination). */
+    previewImageId: z.string().max(120).nullable(),
     displayedPriceJod: z.number().finite(),
     displayedPricingVersion: z.string().max(100),
     customer: CustomerSchema,
@@ -148,7 +151,10 @@ export async function submitOrder(raw: unknown, deps: SubmitDeps): Promise<Submi
     for (const [k, v] of Object.entries(config.errors)) fieldErrors[`configuration.${k as ConfigField}`] = v!;
     return fail(422, "invalid_option", "One or more selected options are not available.", { fieldErrors });
   }
-  if (input.previewVersion !== PREVIEW_VERSION) {
+  // The server decides which concept image belongs to this design; the
+  // browser's value is only compared, so an order never records a wrong image.
+  const previewImageId = findPreviewImageId(config.value);
+  if (input.previewVersion !== PREVIEW_VERSION || input.previewImageId !== previewImageId) {
     return fail(409, "preview_outdated", "The design preview has been updated. Please review your design again.");
   }
 
@@ -220,6 +226,7 @@ export async function submitOrder(raw: unknown, deps: SubmitDeps): Promise<Submi
       configuration: config.value,
       catalogVersion: CATALOG_VERSION,
       previewVersion: input.previewVersion,
+      previewImageId,
       priceJod: quote.priceJod,
       currency: quote.currency,
       priceType: quote.priceType,

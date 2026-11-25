@@ -21,7 +21,8 @@ export interface OrderRow {
   color: string;
   tag_material: string;
   tag_text: string;
-  configuration: ProductConfiguration;
+  /** The configuration, plus `previewImageId` (the concept image shown), stored together. */
+  configuration: ProductConfiguration & { previewImageId?: string | null };
   catalog_version: string;
   preview_version: string;
   price_jod: number | string;
@@ -40,6 +41,7 @@ export interface OrderRow {
 }
 
 export function rowToOrder(r: OrderRow): OrderRecord {
+  const { previewImageId, ...configuration } = r.configuration;
   return {
     id: r.id,
     reference: r.reference,
@@ -54,9 +56,10 @@ export function rowToOrder(r: OrderRow): OrderRecord {
       deliveryAddress: r.delivery_address,
       notes: r.customer_notes,
     },
-    configuration: r.configuration,
+    configuration: configuration as ProductConfiguration,
     catalogVersion: r.catalog_version,
     previewVersion: r.preview_version,
+    previewImageId: typeof previewImageId === "string" ? previewImageId : null,
     priceJod: Number(r.price_jod),
     currency: r.currency,
     priceType: r.price_type,
@@ -89,7 +92,8 @@ export function newOrderToRow(o: NewOrder) {
     color: o.configuration.color,
     tag_material: o.configuration.tagMaterial,
     tag_text: o.configuration.tagText,
-    configuration: o.configuration,
+    // Stored inside the configuration document so no database change is needed.
+    configuration: { ...o.configuration, previewImageId: o.previewImageId },
     catalog_version: o.catalogVersion,
     preview_version: o.previewVersion,
     price_jod: o.priceJod,

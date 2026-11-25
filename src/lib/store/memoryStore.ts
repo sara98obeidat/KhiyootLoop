@@ -41,6 +41,7 @@ export class MemoryOrderStore implements OrderStore {
       configuration: { ...o.configuration },
       catalogVersion: o.catalogVersion,
       previewVersion: o.previewVersion,
+      previewImageId: o.previewImageId,
       priceJod: o.priceJod,
       currency: o.currency,
       priceType: o.priceType,

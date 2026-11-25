@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:db": "bash scripts/test-db.sh",
-    "test:e2e": "node e2e/run.mjs"
+    "test:e2e": "node e2e/run.mjs",
+    "previews:report": "PREVIEW_REPORT_WRITE=1 vitest run tests/unit/previewReport.test.ts"
   },
   "engines": {
     "node": ">=20"

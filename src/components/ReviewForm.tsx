@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { PRODUCTION_ESTIMATE_TEXT } from "@/config/catalog";
 import { DEMONSTRATION_PRICE_NOTE } from "@/config/pricing";
 import { TEST_NOTICE, type OrderMode } from "@/config/site";
-import { ProductPreviewV1 } from "./preview/ProductPreview";
+import { ConceptPreview } from "./preview/ConceptPreview";
+import { previewImageId } from "@/config/previewImages";
 import { SpecTable } from "./SpecTable";
 import { PREVIEW_VERSION, validateConfiguration, type ProductConfiguration } from "@/lib/configuration";
 import { clearDraft, loadContact, loadDraft, saveContact } from "@/lib/draft";
@@ -110,6 +111,7 @@ export function ReviewForm({ mode }: { mode: OrderMode }) {
     const payload = {
       configuration: config,
       previewVersion: PREVIEW_VERSION,
+      previewImageId: previewImageId(config!),
       displayedPriceJod: quote.priceJod,
       displayedPricingVersion: quote.pricingVersion,
       customer: {
@@ -192,10 +194,7 @@ export function ReviewForm({ mode }: { mode: OrderMode }) {
     <div className="configurator">
       <div className="preview-panel">
         <figure className="card">
-          <ProductPreviewV1 config={config} idPrefix="rev" />
-          <figcaption>
-            <strong>Illustrative preview.</strong> Handmade texture and screen colours vary.
-          </figcaption>
+          <ConceptPreview config={config} idPrefix="rev" priority />
         </figure>
       </div>
       <div className="stack">

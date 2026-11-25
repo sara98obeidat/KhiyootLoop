@@ -2,7 +2,7 @@
 
 A website where customers design a handmade crochet **bag** or **scarf**:
 size, stitch, yarn, colour and a personalised leather or metal tag. They
-see an illustrative 2D preview and submit an order request. The founder
+see a concept-image preview with their tag and text, and submit an order request. The founder
 reviews orders in a private dashboard.
 
 The site starts in **classroom test mode**: every order and email is marked as a
@@ -28,7 +28,7 @@ delivery (see `docs/SETUP.md` → "Switching on real orders").
 | Path | Purpose |
 |---|---|
 | `/` | Brand proposition, two product cards, customization buttons |
-| `/customize/bag`, `/customize/scarf` | Configurator with live layered SVG preview and dimensions |
+| `/customize/bag`, `/customize/scarf` | Configurator with concept-image preview, tag/text layers and dimensions |
 | `/review` | Full specification, exact tag text, contact form, "Submit test order" |
 | `/order/[reference]?key=…` | Acknowledgment, read back from the database (private link) |
 | `/founder` | Founder sign-in and order dashboard (filter, status, email retry) |
@@ -45,7 +45,10 @@ delivery (see `docs/SETUP.md` → "Switching on real orders").
 | Test/live mode switch and readiness checklist | `src/config/site.ts` |
 | Tag text rules (12 visible characters, Arabic/English) | `src/lib/tagText.ts` |
 | Server-side order validation, pricing, idempotency, rate limit, email | `src/lib/orderService.ts` |
-| SVG preview (versioned: `svg-preview-v1`) | `src/components/preview/` |
+| Concept image mapping (which image belongs to which combination) | `src/config/previewImages.ts` |
+| Concept image files (WebP, never stretched) | `public/previews/` |
+| Which combinations still need an image | `docs/PREVIEW_IMAGES.md` (`npm run previews:report`) |
+| Preview components (`image-preview-v1`, legacy `svg-preview-v1`) | `src/components/preview/` |
 | Database schema + RLS | `supabase/migrations/` |
 
 ## How an order is handled

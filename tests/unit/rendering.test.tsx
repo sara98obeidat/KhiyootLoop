@@ -8,7 +8,8 @@ import type { OrderRecord } from "@/lib/orders";
 
 const render = (config: ProductConfiguration, id = "t") => renderToStaticMarkup(<ProductPreviewV1 config={config} idPrefix={id} />);
 
-const bag: ProductConfiguration = { ...defaultConfiguration("bag"), tagText: "Sara" };
+// The legacy SVG preview (kept for older orders), tested on its original defaults.
+const bag: ProductConfiguration = { ...defaultConfiguration("bag"), stitch: "single_crochet", color: "black", tagText: "Sara" };
 const scarf: ProductConfiguration = { ...defaultConfiguration("scarf"), tagText: "سارة" };
 
 describe("2D preview", () => {
@@ -72,6 +73,7 @@ describe("acknowledgment email", () => {
     configuration: { ...scarf, tagText: "سارة & Co" },
     catalogVersion: "c",
     previewVersion: "svg-preview-v1",
+    previewImageId: null,
     priceJod: 56,
     currency: "JOD",
     priceType: "demonstration",

@@ -4,7 +4,7 @@ import logo from "../../public/brand/khiyootloop-logo.png";
 import { PRODUCTS, PRODUCTION_ESTIMATE_TEXT } from "@/config/catalog";
 import { DEMONSTRATION_PRICES } from "@/config/pricing";
 import { currentOrderMode } from "@/config/site";
-import { ProductPreviewV1 } from "@/components/preview/ProductPreview";
+import { ConceptPreview } from "@/components/preview/ConceptPreview";
 import { defaultConfiguration } from "@/lib/configuration";
 import { formatJod } from "@/lib/pricing";
 
@@ -23,7 +23,7 @@ export default function HomePage() {
           <h1 id="hero-title">Design your own crochet bag or scarf</h1>
           <p>
             Choose the size, stitch, yarn and colour, then add a leather or metal tag with your own short
-            text in Arabic or English. An illustrative preview updates as you choose, so you can see how your
+            text in Arabic or English. A concept preview updates as you choose, so you can see how your
             choices fit together before you send your order request.
           </p>
           <div className="cta-row">
@@ -42,10 +42,11 @@ export default function HomePage() {
           {cards.map(({ id, product, config }) => (
             <article key={id} className="card product-card">
               <div className="art">
-                <ProductPreviewV1 config={config} idPrefix={`home-${id}`} />
+                <ConceptPreview config={config} idPrefix={`home-${id}`} compact />
               </div>
               <p className="placeholder-label">
-                Illustration, not a product photograph. Real photos will be added once samples are made.
+                AI-generated concept image, not a photograph of a finished piece. Real photos will be added once
+                samples are made.
               </p>
               <h3>{product.name}</h3>
               <p>{product.baseDesign}</p>
