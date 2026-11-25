@@ -306,11 +306,11 @@ describe("manual acknowledgments (automatic email switched off)", () => {
 describe("concept preview image", () => {
   it("saves the image id of the concept image the customer saw", async () => {
     const b = body("bag");
-    expect(b.previewImageId).toBe("bag-waistcoat-cotton_cord_3mm-cream-v1");
+    expect(b.previewImageId).toBe("bag-single_crochet-cotton_cord_3mm-cream-v1");
     const r = await submitOrder(b, deps);
     expect(r.status).toBe(201);
     const saved = await store.getByIdempotencyKey(b.idempotencyKey);
-    expect(saved?.previewImageId).toBe("bag-waistcoat-cotton_cord_3mm-cream-v1");
+    expect(saved?.previewImageId).toBe("bag-single_crochet-cotton_cord_3mm-cream-v1");
     expect(saved?.previewVersion).toBe("image-preview-v1");
   });
 
@@ -323,7 +323,7 @@ describe("concept preview image", () => {
   });
 
   it("rejects an image id that does not belong to the chosen options", async () => {
-    const b = body("bag", { previewImageId: "bag-waistcoat-cotton_cord_3mm-burgundy-v1" });
+    const b = body("bag", { previewImageId: "bag-single_crochet-cotton_cord_3mm-burgundy-v1" });
     const r = await submitOrder(b, deps);
     expect(r.status).toBe(409);
     expect(await store.getByIdempotencyKey(b.idempotencyKey)).toBeNull();

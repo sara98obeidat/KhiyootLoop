@@ -12,8 +12,8 @@ dimensions, so one image covers both sizes unless a size-specific image is added
 | Stitch | Material | Colour | Image |
 |---|---|---|---|
 | Single crochet | Cotton cord (about 3 mm) | Black | **missing** |
-| Single crochet | Cotton cord (about 3 mm) | Cream | **missing** |
-| Single crochet | Cotton cord (about 3 mm) | Burgundy | **missing** |
+| Single crochet | Cotton cord (about 3 mm) | Cream | `bag-single_crochet-cotton_cord_3mm-cream-v1` |
+| Single crochet | Cotton cord (about 3 mm) | Burgundy | `bag-single_crochet-cotton_cord_3mm-burgundy-v1` |
 | Single crochet | Cotton cord (about 3 mm) | Teal | **missing** |
 | Single crochet | Cotton cord (about 3 mm) | Gray | **missing** |
 | Single crochet | Polyester macramé cord (about 2 mm) | Black | **missing** |
@@ -22,8 +22,8 @@ dimensions, so one image covers both sizes unless a size-specific image is added
 | Single crochet | Polyester macramé cord (about 2 mm) | Teal | **missing** |
 | Single crochet | Polyester macramé cord (about 2 mm) | Gray | **missing** |
 | Waistcoat stitch | Cotton cord (about 3 mm) | Black | **missing** |
-| Waistcoat stitch | Cotton cord (about 3 mm) | Cream | `bag-waistcoat-cotton_cord_3mm-cream-v1` |
-| Waistcoat stitch | Cotton cord (about 3 mm) | Burgundy | `bag-waistcoat-cotton_cord_3mm-burgundy-v1` |
+| Waistcoat stitch | Cotton cord (about 3 mm) | Cream | **missing** |
+| Waistcoat stitch | Cotton cord (about 3 mm) | Burgundy | **missing** |
 | Waistcoat stitch | Cotton cord (about 3 mm) | Teal | **missing** |
 | Waistcoat stitch | Cotton cord (about 3 mm) | Gray | **missing** |
 | Waistcoat stitch | Polyester macramé cord (about 2 mm) | Black | **missing** |
@@ -61,7 +61,7 @@ dimensions, so one image covers both sizes unless a size-specific image is added
 
 | Image id | Supplied file | Size |
 |---|---|---|
-| `bag-waistcoat-cotton_cord_3mm-cream-v1` | Generated Image November 25, 2026 - 10_42AM.png | all sizes |
-| `bag-waistcoat-cotton_cord_3mm-burgundy-v1` | Generated Image November 25, 2026 - 10_43AM.png | all sizes |
+| `bag-single_crochet-cotton_cord_3mm-cream-v1` | Generated Image November 25, 2026 - 10_42AM.png | all sizes |
+| `bag-single_crochet-cotton_cord_3mm-burgundy-v1` | Generated Image November 25, 2026 - 10_43AM.png | all sizes |
 | `scarf-hdc-cotton_acrylic-cream-v1` | Generated Image November 25, 2026 - 10_46AM.png | all sizes |
 | `scarf-hdc-cotton_acrylic-burgundy-v1` | Generated Image November 25, 2026 - 10_47AM.png | all sizes |

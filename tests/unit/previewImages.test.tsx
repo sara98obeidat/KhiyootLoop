@@ -37,10 +37,10 @@ describe("concept image mapping", () => {
   });
 
   it("never substitutes another stitch, material or colour", () => {
-    const base = { product: "bag" as const, size: "regular", stitch: "waistcoat", material: "cotton_cord_3mm" };
-    expect(findPreviewImage({ ...base, color: "cream" })?.image.id).toBe("bag-waistcoat-cotton_cord_3mm-cream-v1");
+    const base = { product: "bag" as const, size: "regular", stitch: "single_crochet", material: "cotton_cord_3mm" };
+    expect(findPreviewImage({ ...base, color: "cream" })?.image.id).toBe("bag-single_crochet-cotton_cord_3mm-cream-v1");
     expect(findPreviewImage({ ...base, color: "black" })).toBeNull();
-    expect(findPreviewImage({ ...base, color: "cream", stitch: "single_crochet" })).toBeNull();
+    expect(findPreviewImage({ ...base, color: "cream", stitch: "waistcoat" })).toBeNull();
     expect(findPreviewImage({ ...base, color: "cream", material: "polyester_macrame_2mm" })).toBeNull();
   });
 
@@ -65,10 +65,10 @@ describe("concept image mapping", () => {
   });
 
   it("preloads only images of the same product", () => {
-    const n = neighbourImages({ product: "bag", stitch: "waistcoat", material: "cotton_cord_3mm", color: "black" });
+    const n = neighbourImages({ product: "bag", stitch: "single_crochet", material: "cotton_cord_3mm", color: "black" });
     expect(n.map((i) => i.id).sort()).toEqual([
-      "bag-waistcoat-cotton_cord_3mm-burgundy-v1",
-      "bag-waistcoat-cotton_cord_3mm-cream-v1",
+      "bag-single_crochet-cotton_cord_3mm-burgundy-v1",
+      "bag-single_crochet-cotton_cord_3mm-cream-v1",
     ]);
   });
 });
@@ -79,7 +79,7 @@ describe("concept preview rendering", () => {
 
   it("layers the image, tag and exact text, with the concept label", () => {
     const html = renderToStaticMarkup(<ConceptPreview config={bag} />);
-    expect(html).toContain("/previews/bag/bag-waistcoat-cotton_cord_3mm-cream-v1.");
+    expect(html).toContain("/previews/bag/bag-single_crochet-cotton_cord_3mm-cream-v1.");
     expect(html).toContain('class="concept-overlay"');
     expect(html).toContain(">Sara</text>");
     expect(html).toContain(CONCEPT_LABEL.replace("—", "—"));
@@ -105,9 +105,9 @@ describe("concept preview rendering", () => {
 
   it("redraws a saved order from its stored image id", () => {
     const html = renderToStaticMarkup(
-      <DesignPreview config={bag} version="image-preview-v1" imageId="bag-waistcoat-cotton_cord_3mm-burgundy-v1" />,
+      <DesignPreview config={bag} version="image-preview-v1" imageId="bag-single_crochet-cotton_cord_3mm-burgundy-v1" />,
     );
-    expect(html).toContain("bag-waistcoat-cotton_cord_3mm-burgundy-v1.");
+    expect(html).toContain("bag-single_crochet-cotton_cord_3mm-burgundy-v1.");
     const none = renderToStaticMarkup(<DesignPreview config={bag} version="image-preview-v1" imageId={null} />);
     expect(none).toContain("No concept image yet");
   });

@@ -130,14 +130,13 @@ async function main() {
     check(await noHorizontalScroll(p1), "configurator: no horizontal scroll at phone width");
     check((await p1.locator("dl.dims").textContent()).includes("25 × 20 × 6 cm"), "dimensions shown beside preview");
     const img = p1.locator("figure .concept-frame img");
-    check((await img.getAttribute("src")).includes("bag-waistcoat-cotton_cord_3mm-cream-v1"), "bag starts on its cream concept image");
+    check((await img.getAttribute("src")).includes("bag-single_crochet-cotton_cord_3mm-cream-v1"), "bag starts on its cream concept image");
     check(await visible(p1.getByText("Concept preview—final handmade details may vary.")), "concept label shown on the image");
     await p1.getByRole("radio", { name: /^Small/ }).check();
     check((await p1.locator("dl.dims").textContent()).includes("20 × 15 × 5 cm"), "small dimensions shown");
     check(await visible(p1.locator(".concept-size-note", { hasText: "20 × 15 × 5 cm" })), "size given by dimensions, image not stretched");
     const box = await img.boundingBox();
     check(Math.abs(box.width - box.height) < 2, "image keeps its proportions");
-    await p1.getByRole("radio", { name: /^Waistcoat stitch/ }).check();
     // Let the preloaded neighbours arrive, then switching colour must be instant.
     await p1.waitForLoadState("networkidle");
     await p1.getByLabel("Burgundy").check();
@@ -145,7 +144,9 @@ async function main() {
       const el = document.querySelector("figure .concept-frame img");
       return { src: el.getAttribute("src"), complete: el.complete && el.naturalWidth > 0 };
     });
-    check(swap.src.includes("bag-waistcoat-cotton_cord_3mm-burgundy-v1") && swap.complete, "colour change shows the prepared image instantly");
+    check(swap.src.includes("bag-single_crochet-cotton_cord_3mm-burgundy-v1") && swap.complete, "colour change shows the prepared image instantly");
+    await p1.getByRole("radio", { name: /^Waistcoat stitch/ }).check();
+    check(await visible(p1.getByText("No concept image yet for this combination.")), "other stitch without an image says so");
     await p1.getByRole("radio", { name: /^Polyester macramé cord/ }).check();
     check(await visible(p1.getByText("No concept image yet for this combination.")), "missing combination says so");
     check((await p1.locator("figure .concept-frame img").count()) === 0, "no image of another combination shown");
